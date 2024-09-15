@@ -1,0 +1,528 @@
+metadata:
+  title: |
+    S4-5
+  short title: |
+    Social 4&#58;5 Consumers and end-users&#58; Targets related to managing material negative impacts, advancing positive impacts, and managing material risks and opportunities
+  show login: False
+  description: |
+    The undertaking shall disclose the time-bound and outcome-oriented targets it may have set related to&#58;
+    (a) reducing negative impacts on affected communities; and/or
+    (b) advancing positive impacts on affected communities; and/or
+    (c) managing material risks and opportunities related to affected communities. All questions marked with * are voluntary. If unsure, leave blank. 
+  revision_date: 2024-09-15
+---
+modules:
+  - .post
+---
+features:
+  #css: sds.css # local CSS pointer ## goood tutorial for styling da: https://www.youtube.com/watch?v=6a3sER5MOK8
+  popover trigger: hover # how to display interactive content/hyperlinks
+  bootstrap theme: https://bootswatch.com/5/flatly/bootstrap.min.css
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  progressive: True
+  inverse navbar: False
+  hide navbar: True
+  question help button: True
+---
+field: intro_screen
+question: |
+  Social 4&#58;5 Consumers and end-users&#58; Targets related to managing material negative impacts, advancing positive impacts, and managing material risks and opportunities
+subquestion: |
+  The undertaking shall disclose the time-bound and outcome-oriented targets it may have set related to&#58;
+    (a) reducing negative impacts on affected communities; and/or
+    (b) advancing positive impacts on affected communities; and/or
+    (c) managing material risks and opportunities related to affected communities. All questions marked with * are voluntary. If unsure, leave blank.
+
+  To get started, press **Continue**.
+---
+mandatory: True
+code: |
+  multi_user = True
+  guest_member = None
+
+  # Get query params
+  board_id = url_args.get("board_id", "")
+  survey_id = url_args.get("survey_id", "")
+  django_hostname = os.environ.get("DJANGOHOSTNAME")
+  redirect_url = f"https://{django_hostname}/pages/{board_id}/{survey_id}/completed/?submitted=1"
+  login_url = f"https://{django_hostname}/accounts/login/"
+
+  token = url_args.get("token")
+
+  intro_screen
+  validate_status, validate_content = validate_session({"token": token, "board_id": board_id, "survey_id": survey_id})
+  if validate_status != 200:
+     invalid_token_screen
+  else:
+    session_info = json.loads(validate_content)
+    guest_member = session_info.get("boardmember_id")
+    if guest_member:
+      redirect_url = "https://www.beyondcsrd.se"
+
+  # Get more query params
+  organisation_id = url_args.get("organisation", "")
+  target_date = url_args.get("target_date")
+  external_organisation = url_args.get("external_organisation")
+  wekan_board = url_args.get("wekan_board")   # If wekan_board is set to None the list and swimlane info will be retrieved in the django backend
+  list_id = url_args.get("list_id", "optional_default_list_id")
+  swimlane_id = url_args.get("swimlane_id", "optional_default_swimlane_id")
+
+  # This is needed so we can filter active interviews on board_id
+  session_tags().add(board_id)
+  session_tags().add(board_id+"__"+survey_id)
+  session_tags().add(board_id+"__"+survey_id+"__"+organisation_id)
+
+  survey_data = []
+  survey_data.append({'name': 'Has the undertaking set measurable targets to manage material impacts, risks and opportunities related to consumers and end-users?', 'value': S4_5_1 if S4_5_1!='None' else '', 'id': 'S4_5_1', 'answer_type': 'Yes/No/Partly', 'dynamic_header':'Please elaborate on the questions below for each target.', 'dynamic_condition_criteria': 'Yes/Partly'})
+  if not defined('S4_5_2'):
+    define('S4_5_2', '_n/a_')
+  survey_data.append({'name': 'Please disclose the timeframe for setting of measurable outcome-oriented targets.*', 'value': S4_5_2, 'id': 'S4_5_2', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_1', 'condition_criteria': 'No'})
+  if not defined('S4_5_3'):
+    define('S4_5_3', '_n/a_')
+  survey_data.append({'name': 'Please describe the reasons why there are no plans to set measurable outcome-oriented targets.*', 'value': S4_5_3, 'id': 'S4_5_3', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_1', 'condition_criteria': 'No'})
+  if not defined('S4_5_4'):
+    define('S4_5_4', '_n/a_')
+  survey_data.append({'name': 'Is effectiveness of policies and actions tracked in relation to material sustainability-related impact, risk and opportunity?', 'value': S4_5_4, 'id': 'S4_5_4', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_1', 'condition_criteria': 'No'})
+  if not defined('S4_5_5'):
+    define('S4_5_5', '_n/a_')
+  survey_data.append({'name': 'Description of processes through which effectiveness of policies and actions is tracked in relation to material sustainability-related impact, risk and opportunity', 'value': S4_5_5, 'id': 'S4_5_5', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_1', 'condition_criteria': 'No'})
+  if not defined('S4_5_6'):
+    define('S4_5_6', '_n/a_')
+  survey_data.append({'name': 'Description of defined level of ambition to be achieved and of any qualitative or quantitative indicators used to evaluate progress.', 'value': S4_5_6, 'id': 'S4_5_6', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_1', 'condition_criteria': 'No'})
+  if not defined('S4_5_7'):
+    define('S4_5_7', '_n/a_')
+  survey_data.append({'name': 'Base year from which progress is measured.', 'value': S4_5_7, 'id': 'S4_5_7', 'answer_type': 'YEAR', 'condition': 'S4_5_1', 'condition_criteria': 'No'})
+  if S4_5_1 in ['Yes', 'Partly']:
+    S4_5_8.gather()
+  else:
+    EmptyPlaceHolderThing.name.text = ''
+    S4_5_8.append(EmptyPlaceHolderThing)
+    S4_5_8.there_is_another = False
+    S4_5_8.gathered = True
+  for index, indicator in enumerate(S4_5_8):
+    if not indicator.attribute_defined('S4_5_9'):
+      indicator.S4_5_9 = '_n/a_'
+    survey_data.append({'name': 'Please provide a short description of the target.', 'value': indicator.S4_5_9, 'id': f'S4_5_9__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_5_1'})
+    if not indicator.attribute_defined('S4_5_10'):
+      indicator.S4_5_10 = '_n/a_'
+    survey_data.append({'name': 'Please describe the relationship with policy objectives.', 'value': indicator.S4_5_10, 'id': f'S4_5_10__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_5_1'})
+    if not indicator.attribute_defined('S4_5_11'):
+      indicator.S4_5_11 = '_n/a_'
+    survey_data.append({'name': 'Please describe the measurable target.', 'value': indicator.S4_5_11, 'id': f'S4_5_11__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_5_1'})
+    if not indicator.attribute_defined('S4_5_12'):
+      indicator.S4_5_12 = '_n/a_'
+    survey_data.append({'name': 'Please describe the nature of target.', 'value': indicator.S4_5_12, 'id': f'S4_5_12__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_5_1'})
+    if not indicator.attribute_defined('S4_5_13'):
+      indicator.S4_5_13 = '_n/a_'
+    survey_data.append({'name': 'Please describe the scope of target.', 'value': indicator.S4_5_13, 'id': f'S4_5_13__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_5_1'})
+    if not indicator.attribute_defined('S4_5_14'):
+      indicator.S4_5_14 = '_n/a_'
+    survey_data.append({'name': 'Please describe the baseline value.', 'value': indicator.S4_5_14, 'id': f'S4_5_14__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'INTEGER', 'condition': 'S4_5_1'})
+    if not indicator.attribute_defined('S4_5_15'):
+      indicator.S4_5_15 = '_n/a_'
+    survey_data.append({'name': 'Please describe the baseline year.', 'value': indicator.S4_5_15, 'id': f'S4_5_15__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'YEAR', 'condition': 'S4_5_1'})
+    if not indicator.attribute_defined('S4_5_16'):
+      indicator.S4_5_16 = '_n/a_'
+    survey_data.append({'name': 'Please describe the period to which target applies.', 'value': indicator.S4_5_16, 'id': f'S4_5_16__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_5_1'})
+    if not indicator.attribute_defined('S4_5_17'):
+      indicator.S4_5_17 = '_n/a_'
+    survey_data.append({'name': 'Please describe the indication of milestones or interim targets.', 'value': indicator.S4_5_17, 'id': f'S4_5_17__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_5_1'})
+    if not indicator.attribute_defined('S4_5_18'):
+      indicator.S4_5_18 = '_n/a_'
+    survey_data.append({'name': 'Please describe the methodologies and significant assumptions used to define target.', 'value': indicator.S4_5_18, 'id': f'S4_5_18__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_5_1'})
+    if not indicator.attribute_defined('S4_5_19'):
+      indicator.S4_5_19 = '_n/a_'
+    survey_data.append({'name': 'Have stakeholders been involved in target setting?', 'value': indicator.S4_5_19 if indicator.S4_5_19!='None' else '_n/a_', 'id': f'S4_5_19__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'Yes/No/Partly', 'condition': 'S4_5_1'})
+    if not indicator.attribute_defined('S4_5_20'):
+      indicator.S4_5_20 = '_n/a_'
+    survey_data.append({'name': 'Please explain how stakeholders have been involved in target setting.', 'value': indicator.S4_5_20, 'id': f'S4_5_20__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_5_1'})
+    if not indicator.attribute_defined('S4_5_21'):
+      indicator.S4_5_21 = '_n/a_'
+    survey_data.append({'name': 'Please describe any changes in target and corresponding metrics or underlying measurement methodologies, significant assumptions, limitations, sources and adopted processes to collect data.', 'value': indicator.S4_5_21, 'id': f'S4_5_21__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_5_1'})
+    if not indicator.attribute_defined('S4_5_22'):
+      indicator.S4_5_22 = '_n/a_'
+    survey_data.append({'name': 'Description of performance against disclosed target.', 'value': indicator.S4_5_22, 'id': f'S4_5_22__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_5_1'})
+  if S4_5_1 not in ['Yes', 'Partly']:
+    S4_5_8.clear()
+  survey_data.append({'name': 'Were consumers and end-users engaged directly in setting targets?', 'value': S4_5_23 if S4_5_23!='None' else '', 'id': 'S4_5_23', 'answer_type': 'Yes/No/Partly'})
+  if not defined('S4_5_24'):
+    define('S4_5_24', '_n/a_')
+  survey_data.append({'name': 'Please disclose how consumers and end-users are engaged directly in setting targets.', 'value': S4_5_24, 'id': 'S4_5_24', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_23', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Were consumers and end-users engaged directly in tracking performance against targets?', 'value': S4_5_25 if S4_5_25!='None' else '', 'id': 'S4_5_25', 'answer_type': 'Yes/No/Partly'})
+  if not defined('S4_5_26'):
+    define('S4_5_26', '_n/a_')
+  survey_data.append({'name': 'Please disclose how consumers and end-users engaged directly in tracking performance against targets.', 'value': S4_5_26, 'id': 'S4_5_26', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_25', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Were consumers and end-users engaged directly in identifying lessons or improvements as result of undertaking’s performance?', 'value': S4_5_27 if S4_5_27!='None' else '', 'id': 'S4_5_27', 'answer_type': 'Yes/No/Partly'})
+  if not defined('S4_5_28'):
+    define('S4_5_28', '_n/a_')
+  survey_data.append({'name': 'Please disclose how consumers and end-users engaged directly in identifying lessons or improvements as result of undertaking’s performance.', 'value': S4_5_28, 'id': 'S4_5_28', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_27', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Has the undertaking formulated intended outcomes to be achieved in lives of consumers and end-users?*', 'value': S4_5_29 if S4_5_29!='None' else '', 'id': 'S4_5_29', 'answer_type': 'Yes/No/Partly'})
+  if not defined('S4_5_30'):
+    define('S4_5_30', '_n/a_')
+  survey_data.append({'name': 'Please describe the formulated intended outcomes to be achieved in lives of consumers and end-users.*', 'value': S4_5_30, 'id': 'S4_5_30', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_29', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Please share information about stability over time of target in terms of definitions and methodologies to enable comparability.*', 'value': S4_5_31, 'id': 'S4_5_31', 'answer_type': 'OPEN_LARGE'})
+  survey_data.append({'name': 'Disclose references to standards or commitments on which target is based.*', 'value': S4_5_32, 'id': 'S4_5_32', 'answer_type': 'OPEN_LARGE'})
+
+  card_title = 's4-5'
+  card_description = ''
+  # Description section in the wekan board - need to be composed with markdown and be populated with datapartner_url from the intervfile_uploadsiew.
+  card_title = f"{card_title}"
+  card_description = f"{card_description}"
+  
+  email_title = 's4-5'
+  #! Email compose for outgoing email.
+  email_body = f"Dear Partner, <br> <br> This is an automated message to confirm we have recieved the form - {email_title}.  <br> <br> Best regards <br> reportAll Team."
+  
+  email_data = [
+      {
+          "subject": email_title,
+          "body": email_body,
+          "recipients": [],
+          "from": "info@reportall.se",
+      }
+  ]
+
+  survey_data_ids = [d['id'] for d in survey_data]
+  survey_analytics = []
+  survey_analytics.append({"id": "sc_id","name": "score_coverage", "values": [dyn_id for dyn_id in survey_data_ids if any([sa_id in dyn_id for sa_id in ['S4_5_1', 'S4_5_4', 'S4_5_5', 'S4_5_6', 'S4_5_7', 'S4_5_8', 'S4_5_9', 'S4_5_10', 'S4_5_11', 'S4_5_12', 'S4_5_13', 'S4_5_14', 'S4_5_15', 'S4_5_16', 'S4_5_17', 'S4_5_18', 'S4_5_19', 'S4_5_20', 'S4_5_21', 'S4_5_22', 'S4_5_23', 'S4_5_24', 'S4_5_25', 'S4_5_26', 'S4_5_27', 'S4_5_28']])]})
+  survey_analytics.append({"id": "S4_5_F1", "name": "Measurable targets to manage material impacts, risks and opportunities related to consumers and end-users", "values": ["S4_5_10", "S4_5_11", "S4_5_12", "S4_5_13", "S4_5_14", "S4_5_15", "S4_5_16", "S4_5_17", "S4_5_22"], "labels": ["Relationship with policy objectives", "Description", "Nature", "Scope", "Baseline value", "Baseline year", "Period", "Indicator", "Performannce"], "dtypes": ["OPEN", "OPEN", "OPEN", "OPEN", "INTEGER", "YEAR", "OPEN", "OPEN", "OPEN"]})
+
+  survey_analytics_dq = []
+  for sa_idx, sa in enumerate(survey_analytics):
+    if not all([_id in survey_data_ids for _id in sa["values"]]):
+      sd_tag = []
+      sd_found = []
+      drop_sa_ids = []
+      for sd in survey_data:
+        for _id in sa["values"]:
+          if _id in sd["id"]:
+            sd_found.append(sd["id"])
+            tag = sd.get("tag")
+            if tag:
+              sd_tag.append(tag)
+            break
+        if len(sd_found) == len(sa["values"]) and len(sd_found)>0:   # Found all sa values in survey_data
+          dynamic_sa_dict = survey_analytics[sa_idx].copy()
+          dynamic_sa_dict["id"] = dynamic_sa_dict["id"] + f"__DQ{sd_found[0].split('__DQ')[-1]}"
+          dynamic_sa_dict["values"] = sd_found
+          dynamic_sa_dict["tag"] = next(iter(set(sd_tag)), None)
+          survey_analytics_dq.append(dynamic_sa_dict)
+          drop_sa_ids.append(sa_idx)
+          sd_found = []
+          sd_tag = []
+    else:
+      survey_analytics_dq.append(sa)
+
+
+  data = {
+      "board_id": board_id,
+      "survey_id": survey_id,
+      "organisation_id": organisation_id,
+      "external_organisation": external_organisation,
+      "survey_data": survey_data,
+      "survey_analytics": survey_analytics_dq,
+      "survey_uploads": [],
+      "max_responses": {"count": "9", "date_period": "year", "column_title": "Fiscal year"},
+      "target_date": target_date,
+      "wekan_board": wekan_board,
+      "list_id": list_id,
+      "swimlane_id": swimlane_id,
+      "wekan_data": {
+          "card_title": card_title,
+          "card_description": card_description
+  
+      },
+      # "email_data": email_data,
+      "aux_data": [
+      ],
+      "guest_member": guest_member,
+    }
+
+
+  # send data to django
+  final_screen
+  reponse_status_code, response_content = store_interview_results(data)
+  if reponse_status_code == 200:
+    define('error_screen', False) 
+    command('exit', url=redirect_url)
+  else:
+    error_screen
+--- 
+progress: 0
+question: |
+  Has the undertaking set measurable targets to manage material impacts, risks and opportunities related to consumers and end-users? 
+help:
+  label: Help?
+  heading: <BR><h6>Explanation</h6>
+  content: |
+    AR 43. Targets related to material risks and opportunities may be the same as or distinct from targets tied to material impacts. For example, a target to ensure equal access to finance for underserved consumers could both reduce discrimination impacts on those consumers and enlarge the undertaking’s pool of customers.
+    AR 44. The undertaking may also distinguish between short, medium and long-term targets covering the same policy commitment. For example, the undertaking may have as a main objective to make its online services accessible to people with disabilities, with the longterm goal of having adapted 100% of its online services by 2025, and with the short-term objective of adding x number of accessible features every year up and until 2025.
+    AR 45. When modifying or replacing a target in the reporting period, the undertaking may explain the change by cross-referencing it to significant changes in the business model or to broader changes in the accepted standard or legislation from which the target is derived to provide contextual information as per ESRS 2 BP-2 Disclosures in relation to specific circumstances.
+back button: True
+fields:
+  - no label: S4_5_1
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please disclose the timeframe for setting of measurable outcome-oriented targets.*": S4_5_2
+    required: false
+    datatype: area
+    js show if: |
+      ['No'].includes(val('S4_5_1'))
+  - "Please describe the reasons why there are no plans to set measurable outcome-oriented targets.*": S4_5_3
+    required: false
+    datatype: area
+    js show if: |
+      ['No'].includes(val('S4_5_1'))
+  - "Is effectiveness of policies and actions tracked in relation to material sustainability-related impact, risk and opportunity?": S4_5_4
+    required: false
+    datatype: area
+    js show if: |
+      ['No'].includes(val('S4_5_1'))
+  - "Description of processes through which effectiveness of policies and actions is tracked in relation to material sustainability-related impact, risk and opportunity": S4_5_5
+    required: false
+    datatype: area
+    js show if: |
+      ['No'].includes(val('S4_5_1'))
+  - "Description of defined level of ambition to be achieved and of any qualitative or quantitative indicators used to evaluate progress.": S4_5_6
+    required: false
+    datatype: area
+    js show if: |
+      ['No'].includes(val('S4_5_1'))
+  - "Base year from which progress is measured.": S4_5_7
+    required: false
+    datatype: integer
+    max: 2050
+    min: 1900
+    js show if: |
+      ['No'].includes(val('S4_5_1'))
+---
+objects:
+  - S4_5_8: DAList.using(object_type=Thing, there_are_any=True)
+  - EmptyPlaceHolderThing: Thing
+---
+question: |
+  Would you like to add another?
+yesno: S4_5_8.there_is_another
+back button: True
+---
+progress: 13
+question: |
+  Please elaborate on the questions below for each target.
+back button: True
+fields:
+  - Please provide a short description of the target.: S4_5_8[i].S4_5_9
+    datatype: text
+    required: false
+  - Please describe the relationship with policy objectives.: S4_5_8[i].S4_5_10
+    datatype: text
+    required: false
+  - Please describe the measurable target.: S4_5_8[i].S4_5_11
+    datatype: text
+    required: false
+  - Please describe the nature of target.: S4_5_8[i].S4_5_12
+    datatype: text
+    required: false
+  - Please describe the scope of target.: S4_5_8[i].S4_5_13
+    datatype: text
+    required: false
+  - Please describe the baseline value.: S4_5_8[i].S4_5_14
+    datatype: integer
+    required: false
+  - Please describe the baseline year.: S4_5_8[i].S4_5_15
+    datatype: integer
+    max: 2050
+    min: 1900
+    required: false
+  - Please describe the period to which target applies.: S4_5_8[i].S4_5_16
+    datatype: text
+    required: false
+  - Please describe the indication of milestones or interim targets.: S4_5_8[i].S4_5_17
+    datatype: text
+    required: false
+  - Please describe the methodologies and significant assumptions used to define target.: S4_5_8[i].S4_5_18
+    datatype: text
+    required: false
+  - Have stakeholders been involved in target setting?: S4_5_8[i].S4_5_19
+    input type: radio
+    choices: ['Yes', 'No', 'Partly']
+    required: false
+  - Please explain how stakeholders have been involved in target setting.: S4_5_8[i].S4_5_20
+    datatype: text
+    required: false
+  - Please describe any changes in target and corresponding metrics or underlying measurement methodologies, significant assumptions, limitations, sources and adopted processes to collect data.: S4_5_8[i].S4_5_21
+    datatype: text
+    required: false
+  - Description of performance against disclosed target.: S4_5_8[i].S4_5_22
+    datatype: text
+    required: false
+--- 
+progress: 25
+question: |
+  Were consumers and end-users engaged directly in setting targets? 
+help:
+  label: Help?
+  heading: <BR><h6>Explanation</h6>
+  content: |
+    41 The undertaking shall disclose the process for setting the targets , including whether and how the undertaking engaged directly with consumers and/or end-users , their legitimate representatives, or with credible proxies that have insight into their situation in&#58;
+    (b)
+    tracking the undertaking’s performance against them; and
+back button: True
+fields:
+  - no label: S4_5_23
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please disclose how consumers and end-users are engaged directly in setting targets.": S4_5_24
+    required: false
+    datatype: area
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_5_23'))
+--- 
+progress: 38
+question: |
+  Were consumers and end-users engaged directly in tracking performance against targets? 
+back button: True
+fields:
+  - no label: S4_5_25
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please disclose how consumers and end-users engaged directly in tracking performance against targets.": S4_5_26
+    required: false
+    datatype: area
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_5_25'))
+--- 
+progress: 50
+question: |
+  Were consumers and end-users engaged directly in identifying lessons or improvements as result of undertaking’s performance? 
+help:
+  label: Help?
+  heading: <BR><h6>Explanation</h6>
+  content: |
+    41 The undertaking shall disclose the process for setting the targets , including whether and how the undertaking engaged directly with consumers and/or end-users , their legitimate representatives, or with credible proxies that have insight into their situation in&#58;
+    (c)
+    identifying, if any, lessons or improvements as a result of the undertaking’s performance.
+back button: True
+fields:
+  - no label: S4_5_27
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please disclose how consumers and end-users engaged directly in identifying lessons or improvements as result of undertaking’s performance.": S4_5_28
+    required: false
+    datatype: area
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_5_27'))
+--- 
+progress: 63
+question: |
+  Has the undertaking formulated intended outcomes to be achieved in lives of consumers and end-users?* 
+help:
+  label: Help?
+  heading: <BR><h6>Explanation</h6>
+  content: |
+    AR 42 a When disclosing targets in relation to consumers and/or end-users , the undertaking may disclose&#58;
+    (a)
+    the intended outcomes to be achieved in the lives of consumers and/or end-users, being as specific as possible;
+back button: True
+fields:
+  - no label: S4_5_29
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please describe the formulated intended outcomes to be achieved in lives of consumers and end-users.*": S4_5_30
+    required: false
+    datatype: area
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_5_29'))
+--- 
+progress: 75
+question: |
+  Please share information about stability over time of target in terms of definitions and methodologies to enable comparability.* 
+help:
+  label: Help?
+  heading: <BR><h6>Explanation</h6>
+  content: |
+    AR 42 b When disclosing targets in relation to consumers and/or end-users , the undertaking may disclose&#58; (b) their stability over time in terms of definitions and methodologies to enable comparability
+back button: True
+fields:
+  - no label: S4_5_31
+    datatype: area
+    required: false
+--- 
+progress: 88
+question: |
+  Disclose references to standards or commitments on which target is based.* 
+help:
+  label: Help?
+  heading: <BR><h6>Explanation</h6>
+  content: |
+    AR 42 c When disclosing targets in relation to consumers and/or end-users , the undertaking may disclose&#58; (c) the standards or commitments on which the targets are based are to be clearly defined in the reporting (for instance codes of conduct, sourcing policies, global frameworks or industry codes).
+back button: True
+fields:
+  - no label: S4_5_32
+    datatype: area
+    required: false
+---
+code: |
+  S4_5_8[i].name.text=S4_5_8[i].S4_5_9
+---
+#! Response report before submission
+progress: 100
+field: final_screen
+back button: True
+question: |
+  Congratulations!
+subquestion: |
+  All questions have been addressed. Press the submit button below to send in your answers.
+continue button label: Submit answers!
+
+---
+#! Response report before submission
+event: error_screen
+prevent going back: True
+question: |
+  Something went wrong when submitting your answers. 
+subquestion: |  
+  Please try again or contact <a href="mailto:info@beyondcsrd.se">info@beyondcsrd.se</a> for help.
+under: |
+  Details: ${ response_content.decode() }
+buttons:
+  Exit: exit
+
+---
+
+event: require_login_screen
+question: |
+  Oops! You have been logged out. Please login again.
+subquestion: |
+  ${ action_button_html(login_url, size='md', color='primary', label='Login', new_window=False) }
+
+---
+
+event: invalid_token_screen
+question: |
+  Your survey token is invalid. Please contact the administrator to request a new url. 
+subquestion: |
+  ${ action_button_html(login_url, size='md', color='primary', label='Login', new_window=False) }
+
+---

@@ -1,0 +1,414 @@
+metadata:
+  title: |
+    S4-3
+  short title: |
+    Social 4&#58;3 Consumers and end-users&#58; Processes to remediate negative impacts and channels for consumers and end-users to raise concerns
+  show login: False
+  description: |
+    The undertaking shall describe the processes it has in place to provide for or cooperate in the remediation of negative impacts on consumers and end-users that the undertaking is connected with, as well as channels available to consumers and end-users to raise concerns and have them addressed. All questions marked with * are voluntary. If unsure, leave blank. 
+  revision_date: 2024-09-15
+---
+modules:
+  - .post
+---
+features:
+  #css: sds.css # local CSS pointer ## goood tutorial for styling da: https://www.youtube.com/watch?v=6a3sER5MOK8
+  popover trigger: hover # how to display interactive content/hyperlinks
+  bootstrap theme: https://bootswatch.com/5/flatly/bootstrap.min.css
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  progressive: True
+  inverse navbar: False
+  hide navbar: True
+  question help button: True
+---
+field: intro_screen
+question: |
+  Social 4&#58;3 Consumers and end-users&#58; Processes to remediate negative impacts and channels for consumers and end-users to raise concerns
+subquestion: |
+  The undertaking shall describe the processes it has in place to provide for or cooperate in the remediation of negative impacts on consumers and end-users that the undertaking is connected with, as well as channels available to consumers and end-users to raise concerns and have them addressed. All questions marked with * are voluntary. If unsure, leave blank.
+
+  To get started, press **Continue**.
+---
+mandatory: True
+code: |
+  multi_user = True
+  guest_member = None
+
+  # Get query params
+  board_id = url_args.get("board_id", "")
+  survey_id = url_args.get("survey_id", "")
+  django_hostname = os.environ.get("DJANGOHOSTNAME")
+  redirect_url = f"https://{django_hostname}/pages/{board_id}/{survey_id}/completed/?submitted=1"
+  login_url = f"https://{django_hostname}/accounts/login/"
+
+  token = url_args.get("token")
+
+  intro_screen
+  validate_status, validate_content = validate_session({"token": token, "board_id": board_id, "survey_id": survey_id})
+  if validate_status != 200:
+     invalid_token_screen
+  else:
+    session_info = json.loads(validate_content)
+    guest_member = session_info.get("boardmember_id")
+    if guest_member:
+      redirect_url = "https://www.beyondcsrd.se"
+
+  # Get more query params
+  organisation_id = url_args.get("organisation", "")
+  target_date = url_args.get("target_date")
+  external_organisation = url_args.get("external_organisation")
+  wekan_board = url_args.get("wekan_board")   # If wekan_board is set to None the list and swimlane info will be retrieved in the django backend
+  list_id = url_args.get("list_id", "optional_default_list_id")
+  swimlane_id = url_args.get("swimlane_id", "optional_default_swimlane_id")
+
+  # This is needed so we can filter active interviews on board_id
+  session_tags().add(board_id)
+  session_tags().add(board_id+"__"+survey_id)
+  session_tags().add(board_id+"__"+survey_id+"__"+organisation_id)
+
+  survey_data = []
+  survey_data.append({'name': 'Please disclose the general approach to and processes for providing or contributing to remedy where undertaking has identified that it is connected with a material negative impact on consumers and end-users.', 'value': S4_3_1, 'id': 'S4_3_1', 'answer_type': 'OPEN_LARGE'})
+  survey_data.append({'name': 'Does the undertaking have any specific channels in place for consumers and end-users to raise concerns or needs directly with undertaking and have them addressed?', 'value': S4_3_2 if S4_3_2!='None' else '', 'id': 'S4_3_2', 'answer_type': 'Yes/No/Partly'})
+  if not defined('S4_3_3'):
+    define('S4_3_3', '_n/a_')
+  survey_data.append({'name': 'Please share a statement in case the undertaking has not adopted a general process to engage with consumers and end-users.', 'value': S4_3_3, 'id': 'S4_3_3', 'answer_type': 'OPEN', 'condition': 'S4_3_2', 'condition_criteria': 'No'})
+  if not defined('S4_3_4'):
+    define('S4_3_4', '_n/a_')
+  survey_data.append({'name': 'Disclose the timeframe for channel or processes for raising concerns to be in place in case the undertaking has not adopted a general process for engagement.*', 'value': S4_3_4, 'id': 'S4_3_4', 'answer_type': 'OPEN', 'condition': 'S4_3_2', 'condition_criteria': 'No'})
+  if not defined('S4_3_5'):
+    define('S4_3_5', '_n/a_')
+  survey_data.append({'name': 'Please disclose the channels in place for consumers and end-users to raise concerns or needs directly with undertaking and have them addressed.', 'value': S4_3_5, 'id': 'S4_3_5', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_3_2', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Does the undertaking have any processes through which the undertaking supports or requires availability of channels?', 'value': S4_3_6 if S4_3_6!='None' else '', 'id': 'S4_3_6', 'answer_type': 'Yes/No/Partly'})
+  if not defined('S4_3_7'):
+    define('S4_3_7', '_n/a_')
+  survey_data.append({'name': 'Please disclose the processes through which the undertaking supports or requires availability of channels.', 'value': S4_3_7, 'id': 'S4_3_7', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_3_6', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Are issues raised and addressed, tracked and monitored and effectiveness of channels is ensured?', 'value': S4_3_8 if S4_3_8!='None' else '', 'id': 'S4_3_8', 'answer_type': 'Yes/No/Partly'})
+  if not defined('S4_3_9'):
+    define('S4_3_9', '_n/a_')
+  survey_data.append({'name': 'Please disclose how they are tracked and monitored and how effectiveness of channels is ensured.', 'value': S4_3_9, 'id': 'S4_3_9', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_3_8', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Does the undertaking assess that affected communities are aware of and trust structures or processes as a way to raise their concerns or needs and have them addressed?', 'value': S4_3_10 if S4_3_10!='None' else '', 'id': 'S4_3_10', 'answer_type': 'Yes/No/Partly'})
+  if not defined('S4_3_11'):
+    define('S4_3_11', '_n/a_')
+  survey_data.append({'name': 'Please describe how the undertaking assess that affected communities are aware of and trust structures or processes as a way to raise their concerns or needs and have them addressed.', 'value': S4_3_11, 'id': 'S4_3_11', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_3_10', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Are policies regarding protection against retaliation for individuals that use channels to raise concerns or needs in place?', 'value': S4_3_12 if S4_3_12!='None' else '', 'id': 'S4_3_12', 'answer_type': 'Yes/No/Partly'})
+  survey_data.append({'name': 'Are affected consumers and end-users able to access channels at level of undertaking they are affected by?*', 'value': S4_3_13 if S4_3_13!='None' else '', 'id': 'S4_3_13', 'answer_type': 'Yes/No/Partly'})
+  if not defined('S4_3_14'):
+    define('S4_3_14', '_n/a_')
+  survey_data.append({'name': 'Please explain how affected consumers and end-users are able to access channels at level of undertaking they are affected by*.', 'value': S4_3_14, 'id': 'S4_3_14', 'answer_type': 'OPEN', 'condition': 'S4_3_13', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Are third-party mechanisms accessible to consumers and end-users?*', 'value': S4_3_15 if S4_3_15!='None' else '', 'id': 'S4_3_15', 'answer_type': 'Yes/No/Partly'})
+  survey_data.append({'name': 'Are grievances treated confidentially and with respect to rights of privacy and data protection?*', 'value': S4_3_16 if S4_3_16!='None' else '', 'id': 'S4_3_16', 'answer_type': 'Yes/No/Partly'})
+  survey_data.append({'name': 'Are consumers and end-users allowed to use anonymous channels to raise concerns or needs?*', 'value': S4_3_17 if S4_3_17!='None' else '', 'id': 'S4_3_17', 'answer_type': 'Yes/No/Partly'})
+  survey_data.append({'name': 'Please state the number of complaints received from consumers and/or end users during the reporting period.*', 'value': S4_3_18, 'id': 'S4_3_18', 'answer_type': 'INTEGER'})
+
+  card_title = 's4-3'
+  card_description = ''
+  # Description section in the wekan board - need to be composed with markdown and be populated with datapartner_url from the intervfile_uploadsiew.
+  card_title = f"{card_title}"
+  card_description = f"{card_description}"
+  
+  email_title = 's4-3'
+  #! Email compose for outgoing email.
+  email_body = f"Dear Partner, <br> <br> This is an automated message to confirm we have recieved the form - {email_title}.  <br> <br> Best regards <br> reportAll Team."
+  
+  email_data = [
+      {
+          "subject": email_title,
+          "body": email_body,
+          "recipients": [],
+          "from": "info@reportall.se",
+      }
+  ]
+
+  survey_data_ids = [d['id'] for d in survey_data]
+  survey_analytics = []
+  survey_analytics.append({"id": "sc_id","name": "score_coverage", "values": [dyn_id for dyn_id in survey_data_ids if any([sa_id in dyn_id for sa_id in ['S4_3_1', 'S4_3_2', 'S4_3_3', 'S4_3_5', 'S4_3_6', 'S4_3_7', 'S4_3_8', 'S4_3_9', 'S4_3_10', 'S4_3_11', 'S4_3_12']])]})
+  survey_analytics.append({"id": "S4_3_F1", "name": "Number of complaints received during the reporting period.", "values": ["S4_3_18"], "labels": [""], "dtypes": ["INTEGER"]})
+
+  survey_analytics_dq = []
+  for sa_idx, sa in enumerate(survey_analytics):
+    if not all([_id in survey_data_ids for _id in sa["values"]]):
+      sd_tag = []
+      sd_found = []
+      drop_sa_ids = []
+      for sd in survey_data:
+        for _id in sa["values"]:
+          if _id in sd["id"]:
+            sd_found.append(sd["id"])
+            tag = sd.get("tag")
+            if tag:
+              sd_tag.append(tag)
+            break
+        if len(sd_found) == len(sa["values"]) and len(sd_found)>0:   # Found all sa values in survey_data
+          dynamic_sa_dict = survey_analytics[sa_idx].copy()
+          dynamic_sa_dict["id"] = dynamic_sa_dict["id"] + f"__DQ{sd_found[0].split('__DQ')[-1]}"
+          dynamic_sa_dict["values"] = sd_found
+          dynamic_sa_dict["tag"] = next(iter(set(sd_tag)), None)
+          survey_analytics_dq.append(dynamic_sa_dict)
+          drop_sa_ids.append(sa_idx)
+          sd_found = []
+          sd_tag = []
+    else:
+      survey_analytics_dq.append(sa)
+
+
+  data = {
+      "board_id": board_id,
+      "survey_id": survey_id,
+      "organisation_id": organisation_id,
+      "external_organisation": external_organisation,
+      "survey_data": survey_data,
+      "survey_analytics": survey_analytics_dq,
+      "survey_uploads": [],
+      "max_responses": {"count": "9", "date_period": "year", "column_title": "Fiscal year"},
+      "target_date": target_date,
+      "wekan_board": wekan_board,
+      "list_id": list_id,
+      "swimlane_id": swimlane_id,
+      "wekan_data": {
+          "card_title": card_title,
+          "card_description": card_description
+  
+      },
+      # "email_data": email_data,
+      "aux_data": [
+      ],
+      "guest_member": guest_member,
+    }
+
+
+  # send data to django
+  final_screen
+  reponse_status_code, response_content = store_interview_results(data)
+  if reponse_status_code == 200:
+    define('error_screen', False) 
+    command('exit', url=redirect_url)
+  else:
+    error_screen
+--- 
+progress: 0
+question: |
+  Please disclose the general approach to and processes for providing or contributing to remedy where undertaking has identified that it is connected with a material negative impact on consumers and end-users. 
+help:
+  label: Help?
+  heading: <BR><h6>Explanation</h6>
+  content: |
+    AR 18. In fulfilling the requirements set out by the disclosure criteria of ESRS S4-3, the undertaking may be guided by the content of the UN Guiding Principles on Business and Human Rights and the OECD Guidelines for Multinational Enterprises focused on remediation and grievance mechanisms.
+back button: True
+fields:
+  - no label: S4_3_1
+    datatype: area
+    required: false
+--- 
+progress: 10
+question: |
+  Does the undertaking have any specific channels in place for consumers and end-users to raise concerns or needs directly with undertaking and have them addressed? 
+help:
+  label: Help?
+  heading: <BR><h6>Explanation</h6>
+  content: |
+    AR 19. Channels for raising concerns or needs, include grievance mechanisms, hotlines, dialogue processes or other means through which consumers and/or end-users or their legitimate representatives can raise concerns about impacts or explain needs that they would like the undertaking to address. This could include channels provided by the undertaking directly and is to be disclosed in addition to any other mechanisms the undertaking may use to gain insight into the management of impacts on consumers and/or end-users, such as compliance audits. Where the undertaking is relying solely on information about the existence of such channels provided by its business relationships to answer this requirement, it may state that.
+back button: True
+fields:
+  - no label: S4_3_2
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please share a statement in case the undertaking has not adopted a general process to engage with consumers and end-users.": S4_3_3
+    required: false
+    datatype: text
+    js show if: |
+      ['No'].includes(val('S4_3_2'))
+  - "Disclose the timeframe for channel or processes for raising concerns to be in place in case the undertaking has not adopted a general process for engagement.*": S4_3_4
+    required: false
+    datatype: text
+    js show if: |
+      ['No'].includes(val('S4_3_2'))
+  - "Please disclose the channels in place for consumers and end-users to raise concerns or needs directly with undertaking and have them addressed.": S4_3_5
+    required: false
+    datatype: area
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_3_2'))
+--- 
+progress: 19
+question: |
+  Does the undertaking have any processes through which the undertaking supports or requires availability of channels? 
+back button: True
+fields:
+  - no label: S4_3_6
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please disclose the processes through which the undertaking supports or requires availability of channels.": S4_3_7
+    required: false
+    datatype: area
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_3_6'))
+--- 
+progress: 28
+question: |
+  Are issues raised and addressed, tracked and monitored and effectiveness of channels is ensured? 
+back button: True
+fields:
+  - no label: S4_3_8
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please disclose how they are tracked and monitored and how effectiveness of channels is ensured.": S4_3_9
+    required: false
+    datatype: area
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_3_8'))
+--- 
+progress: 37
+question: |
+  Does the undertaking assess that affected communities are aware of and trust structures or processes as a way to raise their concerns or needs and have them addressed? 
+help:
+  label: Help?
+  heading: <BR><h6>Explanation</h6>
+  content: |
+    AR 23. In disclosing whether and how the undertaking knows that consumers and/or end-users are aware of and trust any of these channels, the undertaking may provide relevant and reliable data about the effectiveness of these channels from the perspective of consumers and/or end-users themselves. Examples of sources of information are surveys of consumers and/or end-users that have used such channels and their levels of satisfaction with the process and outcomes. To illustrate the usage level of such channels, the undertaking may disclose the number of complaints received from consumers and/or endusers during the reporting period.
+back button: True
+fields:
+  - no label: S4_3_10
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please describe how the undertaking assess that affected communities are aware of and trust structures or processes as a way to raise their concerns or needs and have them addressed.": S4_3_11
+    required: false
+    datatype: area
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_3_10'))
+--- 
+progress: 46
+question: |
+  Are policies regarding protection against retaliation for individuals that use channels to raise concerns or needs in place? 
+back button: True
+fields:
+  - no label: S4_3_12
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+--- 
+progress: 55
+question: |
+  Are affected consumers and end-users able to access channels at level of undertaking they are affected by?* 
+back button: True
+fields:
+  - no label: S4_3_13
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please explain how affected consumers and end-users are able to access channels at level of undertaking they are affected by*.": S4_3_14
+    required: false
+    datatype: text
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_3_13'))
+--- 
+progress: 64
+question: |
+  Are third-party mechanisms accessible to consumers and end-users?* 
+back button: True
+fields:
+  - no label: S4_3_15
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+--- 
+progress: 73
+question: |
+  Are grievances treated confidentially and with respect to rights of privacy and data protection?* 
+back button: True
+fields:
+  - no label: S4_3_16
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+--- 
+progress: 82
+question: |
+  Are consumers and end-users allowed to use anonymous channels to raise concerns or needs?* 
+back button: True
+fields:
+  - no label: S4_3_17
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+--- 
+progress: 91
+question: |
+  Please state the number of complaints received from consumers and/or end users during the reporting period.* 
+back button: True
+fields:
+  - no label: S4_3_18
+    datatype: integer
+    required: false
+---
+#! Response report before submission
+progress: 100
+field: final_screen
+back button: True
+question: |
+  Congratulations!
+subquestion: |
+  All questions have been addressed. Press the submit button below to send in your answers.
+continue button label: Submit answers!
+
+---
+#! Response report before submission
+event: error_screen
+prevent going back: True
+question: |
+  Something went wrong when submitting your answers. 
+subquestion: |  
+  Please try again or contact <a href="mailto:info@beyondcsrd.se">info@beyondcsrd.se</a> for help.
+under: |
+  Details: ${ response_content.decode() }
+buttons:
+  Exit: exit
+
+---
+
+event: require_login_screen
+question: |
+  Oops! You have been logged out. Please login again.
+subquestion: |
+  ${ action_button_html(login_url, size='md', color='primary', label='Login', new_window=False) }
+
+---
+
+event: invalid_token_screen
+question: |
+  Your survey token is invalid. Please contact the administrator to request a new url. 
+subquestion: |
+  ${ action_button_html(login_url, size='md', color='primary', label='Login', new_window=False) }
+
+---

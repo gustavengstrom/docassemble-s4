@@ -44,9 +44,9 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
     return out
 
 setup(name='docassemble.s4',
-      version='0.0.1',
+      version='0.0.2',
       description=('A docassemble extension.'),
-      long_description='# docassemble.s4\n\nA docassemble extension.\n\n## Author\n\nGustav E, gustav@davcon.se\n\n',
+      long_description='# docassemble.s4\r\n\r\nA docassemble extension.\r\n\r\n## Author\r\n\r\nGustav E, gustav@davcon.se\r\n\r\n',
       long_description_content_type='text/markdown',
       author='Gustav E',
       author_email='gustav@davcon.se',

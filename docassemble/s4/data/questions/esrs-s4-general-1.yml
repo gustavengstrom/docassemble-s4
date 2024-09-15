@@ -1,0 +1,295 @@
+metadata:
+  title: |
+    ESRS-S4-General-1
+  short title: |
+    General disclosures
+  show login: False
+  description: |
+    The objective of this Standard is to specify disclosure requirements which will enable users of the sustainability statement to understand material impacts on consumers and endusers connected with the undertaking’s own operations and value chain, including through its products or services, as well as through its business relationships, and its related material risks and opportunities. If unsure, leave blank. 
+  revision_date: 2024-09-15
+---
+modules:
+  - .post
+---
+features:
+  #css: sds.css # local CSS pointer ## goood tutorial for styling da: https://www.youtube.com/watch?v=6a3sER5MOK8
+  popover trigger: hover # how to display interactive content/hyperlinks
+  bootstrap theme: https://bootswatch.com/5/flatly/bootstrap.min.css
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  progressive: True
+  inverse navbar: False
+  hide navbar: True
+  question help button: True
+---
+field: intro_screen
+question: |
+  General disclosures
+subquestion: |
+  The objective of this Standard is to specify disclosure requirements which will enable users of the sustainability statement to understand material impacts on consumers and endusers connected with the undertaking’s own operations and value chain, including through its products or services, as well as through its business relationships, and its related material risks and opportunities. If unsure, leave blank.
+
+  To get started, press **Continue**.
+---
+mandatory: True
+code: |
+  multi_user = True
+  guest_member = None
+
+  # Get query params
+  board_id = url_args.get("board_id", "")
+  survey_id = url_args.get("survey_id", "")
+  django_hostname = os.environ.get("DJANGOHOSTNAME")
+  redirect_url = f"https://{django_hostname}/pages/{board_id}/{survey_id}/completed/?submitted=1"
+  login_url = f"https://{django_hostname}/accounts/login/"
+
+  token = url_args.get("token")
+
+  intro_screen
+  validate_status, validate_content = validate_session({"token": token, "board_id": board_id, "survey_id": survey_id})
+  if validate_status != 200:
+     invalid_token_screen
+  else:
+    session_info = json.loads(validate_content)
+    guest_member = session_info.get("boardmember_id")
+    if guest_member:
+      redirect_url = "https://www.beyondcsrd.se"
+
+  # Get more query params
+  organisation_id = url_args.get("organisation", "")
+  target_date = url_args.get("target_date")
+  external_organisation = url_args.get("external_organisation")
+  wekan_board = url_args.get("wekan_board")   # If wekan_board is set to None the list and swimlane info will be retrieved in the django backend
+  list_id = url_args.get("list_id", "optional_default_list_id")
+  swimlane_id = url_args.get("swimlane_id", "optional_default_swimlane_id")
+
+  # This is needed so we can filter active interviews on board_id
+  session_tags().add(board_id)
+  session_tags().add(board_id+"__"+survey_id)
+  session_tags().add(board_id+"__"+survey_id+"__"+organisation_id)
+
+  survey_data = []
+  survey_data.append({'name': 'Does the undertaking or group have more than 750 employees during the financial year?', 'value': ESRS_S4_General_1_1 if ESRS_S4_General_1_1!='None' else '', 'id': 'ESRS_S4_General_1_1', 'answer_type': 'Yes/No/Partly'})
+  if not defined('ESRS_S4_General_1_2'):
+    define('ESRS_S4_General_1_2', '_n/a_')
+  survey_data.append({'name': 'Are the phasing-in exceptions applicable for the undertaking for the year of this reporting?', 'value': ESRS_S4_General_1_2 if ESRS_S4_General_1_2!='None' else '_n/a_', 'id': 'ESRS_S4_General_1_2', 'answer_type': 'Yes/No', 'condition': 'ESRS_S4_General_1_1', 'condition_criteria': 'Yes/Partly'})
+  if not defined('ESRS_S4_General_1_3'):
+    define('ESRS_S4_General_1_3', '_n/a_')
+  survey_data.append({'name': 'Would the undertaking nevertheless want to disclose S4 in preparation for future reports?', 'value': ESRS_S4_General_1_3 if ESRS_S4_General_1_3!='None' else '_n/a_', 'id': 'ESRS_S4_General_1_3', 'answer_type': 'Yes/No', 'condition': 'ESRS_S4_General_1_2', 'condition_criteria': 'Yes', 'dynamic_header':'Please elaborate on the questions below for each material sustainability topic covered by ESRS S4 that has been assessed to be material as a result of the undertaking’s materiality assessment.', 'dynamic_condition_criteria': 'No'})
+  if ESRS_S4_General_1_3 in ['No']:
+    ESRS_S4_General_1_4.gather()
+  else:
+    EmptyPlaceHolderThing.name.text = ''
+    ESRS_S4_General_1_4.append(EmptyPlaceHolderThing)
+    ESRS_S4_General_1_4.there_is_another = False
+    ESRS_S4_General_1_4.gathered = True
+  for index, indicator in enumerate(ESRS_S4_General_1_4):
+    if not indicator.attribute_defined('ESRS_S4_General_1_5'):
+      indicator.ESRS_S4_General_1_5 = '_n/a_'
+    survey_data.append({'name': 'Please disclose the list of matters (i.e. topic, subtopic or sub-sub-topic) in AR 16 ESRS 1 Appendix A that are assessed to be material and briefly describe how the undertaking’s business model and strategy take account of the impacts of the undertaking related to those matters. The undertaking may identify the matter at the level of topic, subtopic or sub-sub-topic.', 'value': indicator.ESRS_S4_General_1_5, 'id': f'ESRS_S4_General_1_5__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN_LARGE', 'condition': 'ESRS_S4_General_1_3'})
+    if not indicator.attribute_defined('ESRS_S4_General_1_6'):
+      indicator.ESRS_S4_General_1_6 = '_n/a_'
+    survey_data.append({'name': 'Please briefly describe any time-bound targets it has set related to the matters in question, the progress it has made towards achieving those targets, and whether its targets related to biodiversity and ecosystems are based on conclusive scientific evidence.', 'value': indicator.ESRS_S4_General_1_6, 'id': f'ESRS_S4_General_1_6__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'ESRS_S4_General_1_3'})
+    if not indicator.attribute_defined('ESRS_S4_General_1_7'):
+      indicator.ESRS_S4_General_1_7 = '_n/a_'
+    survey_data.append({'name': 'Please briefly describe its policies in relation to the matters in question.', 'value': indicator.ESRS_S4_General_1_7, 'id': f'ESRS_S4_General_1_7__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'ESRS_S4_General_1_3'})
+    if not indicator.attribute_defined('ESRS_S4_General_1_8'):
+      indicator.ESRS_S4_General_1_8 = '_n/a_'
+    survey_data.append({'name': 'Please briefly describe actions it has taken to identify, monitor, prevent, mitigate, remediate or bring an end to actual or potential adverse impacts related to the matters in question, and the result of such action.', 'value': indicator.ESRS_S4_General_1_8, 'id': f'ESRS_S4_General_1_8__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'ESRS_S4_General_1_3'})
+    if not indicator.attribute_defined('ESRS_S4_General_1_9'):
+      indicator.ESRS_S4_General_1_9 = '_n/a_'
+    survey_data.append({'name': 'Please briefly disclose metrics relevant to the matters in question.', 'value': indicator.ESRS_S4_General_1_9, 'id': f'ESRS_S4_General_1_9__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'ESRS_S4_General_1_3'})
+  if ESRS_S4_General_1_3 not in ['No']:
+    ESRS_S4_General_1_4.clear()
+
+  card_title = 'esrs-s4-general-1'
+  card_description = ''
+  # Description section in the wekan board - need to be composed with markdown and be populated with datapartner_url from the intervfile_uploadsiew.
+  card_title = f"{card_title}"
+  card_description = f"{card_description}"
+  
+  email_title = 'esrs-s4-general-1'
+  #! Email compose for outgoing email.
+  email_body = f"Dear Partner, <br> <br> This is an automated message to confirm we have recieved the form - {email_title}.  <br> <br> Best regards <br> reportAll Team."
+  
+  email_data = [
+      {
+          "subject": email_title,
+          "body": email_body,
+          "recipients": [],
+          "from": "info@reportall.se",
+      }
+  ]
+
+  survey_data_ids = [d['id'] for d in survey_data]
+  survey_analytics = []
+  survey_analytics.append({"id": "sc_id","name": "score_coverage", "values": [dyn_id for dyn_id in survey_data_ids if any([sa_id in dyn_id for sa_id in ['ESRS_S4_General_1_4', 'ESRS_S4_General_1_5', 'ESRS_S4_General_1_6', 'ESRS_S4_General_1_7', 'ESRS_S4_General_1_8', 'ESRS_S4_General_1_9']])]})
+
+  survey_analytics_dq = []
+  for sa_idx, sa in enumerate(survey_analytics):
+    if not all([_id in survey_data_ids for _id in sa["values"]]):
+      sd_tag = []
+      sd_found = []
+      drop_sa_ids = []
+      for sd in survey_data:
+        for _id in sa["values"]:
+          if _id in sd["id"]:
+            sd_found.append(sd["id"])
+            tag = sd.get("tag")
+            if tag:
+              sd_tag.append(tag)
+            break
+        if len(sd_found) == len(sa["values"]) and len(sd_found)>0:   # Found all sa values in survey_data
+          dynamic_sa_dict = survey_analytics[sa_idx].copy()
+          dynamic_sa_dict["id"] = dynamic_sa_dict["id"] + f"__DQ{sd_found[0].split('__DQ')[-1]}"
+          dynamic_sa_dict["values"] = sd_found
+          dynamic_sa_dict["tag"] = next(iter(set(sd_tag)), None)
+          survey_analytics_dq.append(dynamic_sa_dict)
+          drop_sa_ids.append(sa_idx)
+          sd_found = []
+          sd_tag = []
+    else:
+      survey_analytics_dq.append(sa)
+
+
+  data = {
+      "board_id": board_id,
+      "survey_id": survey_id,
+      "organisation_id": organisation_id,
+      "external_organisation": external_organisation,
+      "survey_data": survey_data,
+      "survey_analytics": survey_analytics_dq,
+      "survey_uploads": [],
+      "max_responses": {"count": "9", "date_period": "year", "column_title": "Fiscal year"},
+      "target_date": target_date,
+      "wekan_board": wekan_board,
+      "list_id": list_id,
+      "swimlane_id": swimlane_id,
+      "wekan_data": {
+          "card_title": card_title,
+          "card_description": card_description
+  
+      },
+      # "email_data": email_data,
+      "aux_data": [
+      ],
+      "guest_member": guest_member,
+    }
+
+
+  # send data to django
+  final_screen
+  reponse_status_code, response_content = store_interview_results(data)
+  if reponse_status_code == 200:
+    define('error_screen', False) 
+    command('exit', url=redirect_url)
+  else:
+    error_screen
+--- 
+progress: 0
+question: |
+  Does the undertaking or group have more than 750 employees during the financial year? 
+help:
+  label: Help?
+  heading: <BR><h6>Explanation</h6>
+  content: |
+    3) Undertakings or groups not exceeding on their balance sheet dates the average number of 750 employees during the financial year (on a consolidated basis where applicable) may omit all the DPs reported in ESRS S3 for the first 2 years of preparation of their sustainability statement [see ESRS 1 Appendix C&#58; List of phased-in Disclosure Requirements].
+back button: True
+fields:
+  - no label: ESRS_S4_General_1_1
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Are the phasing-in exceptions applicable for the undertaking for the year of this reporting?": ESRS_S4_General_1_2
+    required: false
+    input type: radio
+    choices:
+      - Yes
+      - No
+    js show if: |
+      ['Yes', 'Partly'].includes(val('ESRS_S4_General_1_1'))
+  - "Would the undertaking nevertheless want to disclose S4 in preparation for future reports?": ESRS_S4_General_1_3
+    required: false
+    input type: radio
+    choices:
+      - Yes
+      - No
+    js show if: |
+      ['Yes'].includes(val('ESRS_S4_General_1_2'))
+---
+objects:
+  - ESRS_S4_General_1_4: DAList.using(object_type=Thing, there_are_any=True)
+  - EmptyPlaceHolderThing: Thing
+---
+question: |
+  Would you like to add another?
+yesno: ESRS_S4_General_1_4.there_is_another
+back button: True
+---
+progress: 50
+question: |
+  Please elaborate on the questions below for each material sustainability topic covered by ESRS S4 that has been assessed to be material as a result of the undertaking’s materiality assessment.
+back button: True
+fields:
+  - Please disclose the list of matters (i.e. topic, subtopic or sub-sub-topic) in AR 16 ESRS 1 Appendix A that are assessed to be material and briefly describe how the undertaking’s business model and strategy take account of the impacts of the undertaking related to those matters. The undertaking may identify the matter at the level of topic, subtopic or sub-sub-topic.: ESRS_S4_General_1_4[i].ESRS_S4_General_1_5
+    datatype: area
+    required: false
+  - Please briefly describe any time-bound targets it has set related to the matters in question, the progress it has made towards achieving those targets, and whether its targets related to biodiversity and ecosystems are based on conclusive scientific evidence.: ESRS_S4_General_1_4[i].ESRS_S4_General_1_6
+    datatype: text
+    required: false
+  - Please briefly describe its policies in relation to the matters in question.: ESRS_S4_General_1_4[i].ESRS_S4_General_1_7
+    datatype: text
+    required: false
+  - Please briefly describe actions it has taken to identify, monitor, prevent, mitigate, remediate or bring an end to actual or potential adverse impacts related to the matters in question, and the result of such action.: ESRS_S4_General_1_4[i].ESRS_S4_General_1_8
+    datatype: text
+    required: false
+  - Please briefly disclose metrics relevant to the matters in question.: ESRS_S4_General_1_4[i].ESRS_S4_General_1_9
+    datatype: text
+    required: false
+---
+code: |
+  ESRS_S4_General_1_4[i].name.text=ESRS_S4_General_1_4[i].ESRS_S4_General_1_5
+---
+#! Response report before submission
+progress: 100
+field: final_screen
+back button: True
+question: |
+  Congratulations!
+subquestion: |
+  All questions have been addressed. Press the submit button below to send in your answers.
+continue button label: Submit answers!
+
+---
+#! Response report before submission
+event: error_screen
+prevent going back: True
+question: |
+  Something went wrong when submitting your answers. 
+subquestion: |  
+  Please try again or contact <a href="mailto:info@beyondcsrd.se">info@beyondcsrd.se</a> for help.
+under: |
+  Details: ${ response_content.decode() }
+buttons:
+  Exit: exit
+
+---
+
+event: require_login_screen
+question: |
+  Oops! You have been logged out. Please login again.
+subquestion: |
+  ${ action_button_html(login_url, size='md', color='primary', label='Login', new_window=False) }
+
+---
+
+event: invalid_token_screen
+question: |
+  Your survey token is invalid. Please contact the administrator to request a new url. 
+subquestion: |
+  ${ action_button_html(login_url, size='md', color='primary', label='Login', new_window=False) }
+
+---

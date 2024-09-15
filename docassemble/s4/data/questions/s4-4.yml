@@ -1,0 +1,771 @@
+metadata:
+  title: |
+    S4-4
+  short title: |
+    Social 4&#58;4 Consumers and enc-users&#58; Taking action on material impacts on consumers and end- users, and approaches to managing material risks and pursuing material opportunities related to consumers and end-users, and effectiveness of those actions
+  show login: False
+  description: |
+    The undertaking shall disclose how it takes action to address material impacts on consumers and end-users, and to manage material risks and pursue material opportunities related to consumers and end-users, and effectiveness of those actions. All questions marked with * are voluntary. If unsure, leave blank. 
+  revision_date: 2024-09-15
+---
+modules:
+  - .post
+---
+features:
+  #css: sds.css # local CSS pointer ## goood tutorial for styling da: https://www.youtube.com/watch?v=6a3sER5MOK8
+  popover trigger: hover # how to display interactive content/hyperlinks
+  bootstrap theme: https://bootswatch.com/5/flatly/bootstrap.min.css
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  progressive: True
+  inverse navbar: False
+  hide navbar: True
+  question help button: True
+---
+field: intro_screen
+question: |
+  Social 4&#58;4 Consumers and enc-users&#58; Taking action on material impacts on consumers and end- users, and approaches to managing material risks and pursuing material opportunities related to consumers and end-users, and effectiveness of those actions
+subquestion: |
+  The undertaking shall disclose how it takes action to address material impacts on consumers and end-users, and to manage material risks and pursue material opportunities related to consumers and end-users, and effectiveness of those actions. All questions marked with * are voluntary. If unsure, leave blank.
+
+  To get started, press **Continue**.
+---
+mandatory: True
+code: |
+  multi_user = True
+  guest_member = None
+
+  # Get query params
+  board_id = url_args.get("board_id", "")
+  survey_id = url_args.get("survey_id", "")
+  django_hostname = os.environ.get("DJANGOHOSTNAME")
+  redirect_url = f"https://{django_hostname}/pages/{board_id}/{survey_id}/completed/?submitted=1"
+  login_url = f"https://{django_hostname}/accounts/login/"
+
+  token = url_args.get("token")
+
+  intro_screen
+  validate_status, validate_content = validate_session({"token": token, "board_id": board_id, "survey_id": survey_id})
+  if validate_status != 200:
+     invalid_token_screen
+  else:
+    session_info = json.loads(validate_content)
+    guest_member = session_info.get("boardmember_id")
+    if guest_member:
+      redirect_url = "https://www.beyondcsrd.se"
+
+  # Get more query params
+  organisation_id = url_args.get("organisation", "")
+  target_date = url_args.get("target_date")
+  external_organisation = url_args.get("external_organisation")
+  wekan_board = url_args.get("wekan_board")   # If wekan_board is set to None the list and swimlane info will be retrieved in the django backend
+  list_id = url_args.get("list_id", "optional_default_list_id")
+  swimlane_id = url_args.get("swimlane_id", "optional_default_swimlane_id")
+
+  # This is needed so we can filter active interviews on board_id
+  session_tags().add(board_id)
+  session_tags().add(board_id+"__"+survey_id)
+  session_tags().add(board_id+"__"+survey_id+"__"+organisation_id)
+
+  survey_data = []
+  survey_data.append({'name': 'Are there action plans and resources to manage material impacts, risks, and opportunities related to consumers and end-users? [see ESRS 2 - MDR-A]', 'value': S4_4_1 if S4_4_1!='None' else '', 'id': 'S4_4_1', 'answer_type': 'Yes/No/Partly', 'dynamic_header':'Please elaborate on the questions below for each key action.', 'dynamic_condition_criteria': 'Yes/Partly'})
+  if not defined('S4_4_2'):
+    define('S4_4_2', '_n/a_')
+  survey_data.append({'name': 'Please disclose reasons for not having adopted actions.', 'value': S4_4_2, 'id': 'S4_4_2', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_4_1', 'condition_criteria': 'No'})
+  if not defined('S4_4_3'):
+    define('S4_4_3', '_n/a_')
+  survey_data.append({'name': 'Please disclose the timeframe in which the undertakings aims to adopt actions.*', 'value': S4_4_3, 'id': 'S4_4_3', 'answer_type': 'OPEN', 'condition': 'S4_4_1', 'condition_criteria': 'No'})
+  if S4_4_1 in ['Yes', 'Partly']:
+    S4_4_4.gather()
+  else:
+    EmptyPlaceHolderThing.name.text = ''
+    S4_4_4.append(EmptyPlaceHolderThing)
+    S4_4_4.there_is_another = False
+    S4_4_4.gathered = True
+  for index, indicator in enumerate(S4_4_4):
+    if not indicator.attribute_defined('S4_4_5'):
+      indicator.S4_4_5 = '_n/a_'
+    survey_data.append({'name': 'Please provide a short description of the key action.', 'value': indicator.S4_4_5, 'id': f'S4_4_5__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_4_1'})
+    if not indicator.attribute_defined('S4_4_6'):
+      indicator.S4_4_6 = '_n/a_'
+    survey_data.append({'name': 'Please describe the undertaking&#x27;s key action related to resource use and circular economy.', 'value': indicator.S4_4_6, 'id': f'S4_4_6__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_4_1'})
+    if not indicator.attribute_defined('S4_4_7'):
+      indicator.S4_4_7 = '_n/a_'
+    survey_data.append({'name': 'Please explain the scope of the undertaking&#x27;s key action related.', 'value': indicator.S4_4_7, 'id': f'S4_4_7__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_4_1'})
+    if not indicator.attribute_defined('S4_4_8'):
+      indicator.S4_4_8 = '_n/a_'
+    survey_data.append({'name': 'Please disclose the time horizon under which key action is to be completed.', 'value': indicator.S4_4_8, 'id': f'S4_4_8__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_4_1'})
+    if not indicator.attribute_defined('S4_4_9'):
+      indicator.S4_4_9 = '_n/a_'
+    survey_data.append({'name': 'Please describe key action taken, and its key results, to provide for and cooperate in or support provision of remedy for those harmed by actual material impacts.', 'value': indicator.S4_4_9, 'id': f'S4_4_9__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_4_1'})
+    if not indicator.attribute_defined('S4_4_10'):
+      indicator.S4_4_10 = '_n/a_'
+    survey_data.append({'name': 'Please disclose quantitative information regarding the progress of actions or action plans disclosed in prior periods.', 'value': indicator.S4_4_10, 'id': f'S4_4_10__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_4_1'})
+    if not indicator.attribute_defined('S4_4_11'):
+      indicator.S4_4_11 = '_n/a_'
+    survey_data.append({'name': 'Please disclose qualitative information regarding the progress of actions or action plans disclosed in prior periods.', 'value': indicator.S4_4_11, 'id': f'S4_4_11__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_4_1'})
+    if not indicator.attribute_defined('S4_4_12'):
+      indicator.S4_4_12 = '_n/a_'
+    survey_data.append({'name': 'Please disclose what type of current and future financial and other resources that are allocated to the action plan (Capex and Opex).', 'value': indicator.S4_4_12, 'id': f'S4_4_12__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_4_1'})
+    if not indicator.attribute_defined('S4_4_13'):
+      indicator.S4_4_13 = '_n/a_'
+    survey_data.append({'name': 'Please explain how current financial resources relate to most relevant amounts presented in financial statements.', 'value': indicator.S4_4_13, 'id': f'S4_4_13__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_4_1'})
+    if not indicator.attribute_defined('S4_4_14'):
+      indicator.S4_4_14 = '_n/a_'
+    survey_data.append({'name': 'What current financial resources do you have allocated to the action plan? (Capex)', 'value': indicator.S4_4_14, 'id': f'S4_4_14__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'CURRENCY', 'condition': 'S4_4_1'})
+    if not indicator.attribute_defined('S4_4_15'):
+      indicator.S4_4_15 = '_n/a_'
+    survey_data.append({'name': 'What current financial resources do you have allocated to the action plan? (Opex)', 'value': indicator.S4_4_15, 'id': f'S4_4_15__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'CURRENCY', 'condition': 'S4_4_1'})
+    if not indicator.attribute_defined('S4_4_16'):
+      indicator.S4_4_16 = '_n/a_'
+    survey_data.append({'name': 'What future financial resources do you have allocated to the action plan? (Capex)', 'value': indicator.S4_4_16, 'id': f'S4_4_16__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'CURRENCY', 'condition': 'S4_4_1'})
+    if not indicator.attribute_defined('S4_4_17'):
+      indicator.S4_4_17 = '_n/a_'
+    survey_data.append({'name': 'What future financial resources do you have allocated to the action plan? (Opex)', 'value': indicator.S4_4_17, 'id': f'S4_4_17__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'CURRENCY', 'condition': 'S4_4_1'})
+  if S4_4_1 not in ['Yes', 'Partly']:
+    S4_4_4.clear()
+  survey_data.append({'name': 'Please describe action planned or underway to prevent, mitigate or remediate material negative impacts on consumers and end-users.', 'value': S4_4_18, 'id': 'S4_4_18', 'answer_type': 'OPEN_LARGE'})
+  survey_data.append({'name': 'Has action been taken to provide or enable remedy in relation to an actual material impact?', 'value': S4_4_19 if S4_4_19!='None' else '', 'id': 'S4_4_19', 'answer_type': 'Yes/No/Partly'})
+  if not defined('S4_4_20'):
+    define('S4_4_20', '_n/a_')
+  survey_data.append({'name': 'Please explain actions taken to provide or enable remedy in relation to an actual material impact.', 'value': S4_4_20, 'id': 'S4_4_20', 'answer_type': 'OPEN', 'condition': 'S4_4_19', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Are there additional initiatives or processes with primary purpose of delivering positive impacts for consumers and end-users?', 'value': S4_4_21 if S4_4_21!='None' else '', 'id': 'S4_4_21', 'answer_type': 'Yes/No/Partly'})
+  if not defined('S4_4_22'):
+    define('S4_4_22', '_n/a_')
+  survey_data.append({'name': 'Please describe the initiatives or processes with primary purpose of delivering positive impacts for consumers and end-users.', 'value': S4_4_22, 'id': 'S4_4_22', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_4_21', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Is effectiveness of actions or initiatives in delivering outcomes for consumers and end-users tracked and assessed?', 'value': S4_4_23 if S4_4_23!='None' else '', 'id': 'S4_4_23', 'answer_type': 'Yes/No/Partly'})
+  if not defined('S4_4_24'):
+    define('S4_4_24', '_n/a_')
+  survey_data.append({'name': 'Please describe how effectiveness of actions or initiatives in delivering outcomes for consumers and end-users are tracked and assessed.', 'value': S4_4_24, 'id': 'S4_4_24', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_4_23', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Does the undertaking have a process for identifying what action is needed and appropriate in response to particular actual or potential material negative impact on consumers and end-users?', 'value': S4_4_25 if S4_4_25!='None' else '', 'id': 'S4_4_25', 'answer_type': 'Yes/No/Partly'})
+  if not defined('S4_4_26'):
+    define('S4_4_26', '_n/a_')
+  survey_data.append({'name': 'Please describe the process for identifying what action is needed and appropriate in response to particular actual or potential material negative impact on consumers and end-users.', 'value': S4_4_26, 'id': 'S4_4_26', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_4_25', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Has the undertaking defined an approach to taking action in relation to specific material impacts on consumers and end-users?', 'value': S4_4_27 if S4_4_27!='None' else '', 'id': 'S4_4_27', 'answer_type': 'Yes/No/Partly'})
+  if not defined('S4_4_28'):
+    define('S4_4_28', '_n/a_')
+  survey_data.append({'name': 'Please describe the approach to taking action in relation to specific material impacts on consumers and end-users.', 'value': S4_4_28, 'id': 'S4_4_28', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_4_27', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Has the undertaking formulated an approach to ensuring that processes to provide or enable remedy in event of material negative impacts on consumers and end-users are available and effective in their implementation and outcomes?', 'value': S4_4_29 if S4_4_29!='None' else '', 'id': 'S4_4_29', 'answer_type': 'Yes/No/Partly'})
+  if not defined('S4_4_30'):
+    define('S4_4_30', '_n/a_')
+  survey_data.append({'name': 'Please share the approach to ensuring that processes to provide or enable remedy in event of material negative impacts on consumers and end-users are available and effective in their implementation and outcomes?', 'value': S4_4_30, 'id': 'S4_4_30', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_4_29', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Are any actions planned or underway to mitigate material risks arising from impacts and dependencies on consumers and end-users?', 'value': S4_4_31 if S4_4_31!='None' else '', 'id': 'S4_4_31', 'answer_type': 'Yes/No/Partly'})
+  if not defined('S4_4_32'):
+    define('S4_4_32', '_n/a_')
+  survey_data.append({'name': 'Please describe the actions planned or underway to mitigate material risks arising from impacts and dependencies on consumers and end-users.', 'value': S4_4_32, 'id': 'S4_4_32', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_4_31', 'condition_criteria': 'Yes/Partly'})
+  if not defined('S4_4_33'):
+    define('S4_4_33', '_n/a_')
+  survey_data.append({'name': 'Is effectiveness of those actions tracked?', 'value': S4_4_33 if S4_4_33!='None' else '_n/a_', 'id': 'S4_4_33', 'answer_type': 'Yes/No/Partly', 'condition': 'S4_4_31', 'condition_criteria': 'Yes/Partly'})
+  if not defined('S4_4_34'):
+    define('S4_4_34', '_n/a_')
+  survey_data.append({'name': 'Please describe how effectiveness of actions is tracked.', 'value': S4_4_34, 'id': 'S4_4_34', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_4_33', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Are any actions planned or underway to pursue material opportunities in relation to consumers and end-users?', 'value': S4_4_35 if S4_4_35!='None' else '', 'id': 'S4_4_35', 'answer_type': 'Yes/No/Partly'})
+  if not defined('S4_4_36'):
+    define('S4_4_36', '_n/a_')
+  survey_data.append({'name': 'Please describe the actions planned or underway to pursue material opportunities in relation to consumers and end-users.', 'value': S4_4_36, 'id': 'S4_4_36', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_4_35', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Is the undertaking ensuring that own practices do not cause or contribute to material negative impacts on consumers and end-users?', 'value': S4_4_37 if S4_4_37!='None' else '', 'id': 'S4_4_37', 'answer_type': 'Yes/No/Partly'})
+  if not defined('S4_4_38'):
+    define('S4_4_38', '_n/a_')
+  survey_data.append({'name': 'Please disclose how the undertaking is ensuring that own practices do not cause or contribute to material negative impacts on consumers and end-users.', 'value': S4_4_38, 'id': 'S4_4_38', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_4_37', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Are there any severe human rights issues and incidents connected to consumers and end-users?', 'value': S4_4_39 if S4_4_39!='None' else '', 'id': 'S4_4_39', 'answer_type': 'Yes/No/Partly'})
+  if not defined('S4_4_40'):
+    define('S4_4_40', '_n/a_')
+  survey_data.append({'name': 'Please disclose the issues and incidents connected to consumers and end-users.', 'value': S4_4_40, 'id': 'S4_4_40', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_4_39', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Are resources allocated to management of material impacts?', 'value': S4_4_41 if S4_4_41!='None' else '', 'id': 'S4_4_41', 'answer_type': 'Yes/No/Partly'})
+  if not defined('S4_4_42'):
+    define('S4_4_42', '_n/a_')
+  survey_data.append({'name': 'Please disclose the resources allocated to management of material impacts.', 'value': S4_4_42, 'id': 'S4_4_42', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_4_41', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Is the undertaking seeking to use leverage with relevant business relationships to manage material negative impacts affecting affecting consumers and end-users?*', 'value': S4_4_43 if S4_4_43!='None' else '', 'id': 'S4_4_43', 'answer_type': 'Yes/No/Partly'})
+  if not defined('S4_4_44'):
+    define('S4_4_44', '_n/a_')
+  survey_data.append({'name': 'Disclose how the undertaking is seeking to use leverage with relevant business relationships to manage material negative impacts affecting affecting consumers and end-users*.', 'value': S4_4_44, 'id': 'S4_4_44', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_4_43', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Is participation in industry or multi-stakeholder initiative and undertaking&#x27;s own involvement aiming to address material impacts?*', 'value': S4_4_45 if S4_4_45!='None' else '', 'id': 'S4_4_45', 'answer_type': 'Yes/No/Partly'})
+  if not defined('S4_4_46'):
+    define('S4_4_46', '_n/a_')
+  survey_data.append({'name': 'Please disclose how participation in industry or multi-stakeholder initiative and undertaking&#x27;s own involvement aim to address material impacts*.', 'value': S4_4_46, 'id': 'S4_4_46', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_4_45', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Do how consumers and end-users play any role in decisions regarding design and implementation of programmes or processes?*', 'value': S4_4_47 if S4_4_47!='None' else '', 'id': 'S4_4_47', 'answer_type': 'Yes/No/Partly'})
+  if not defined('S4_4_48'):
+    define('S4_4_48', '_n/a_')
+  survey_data.append({'name': 'Please describe how consumers and end-users play any role in decisions regarding design and implementation of programmes or processes*.', 'value': S4_4_48, 'id': 'S4_4_48', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_4_47', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Please share information about intended or achieved positive outcomes of programmes or processes for consumers and end-users.*', 'value': S4_4_49, 'id': 'S4_4_49', 'answer_type': 'OPEN_LARGE'})
+  survey_data.append({'name': 'Does the undertaking have initiatives or processes whose primary aim is to deliver positive impacts for consumers and end-users and that are designed also to support achievement of one or more of Sustainable Development Goals?*', 'value': S4_4_50 if S4_4_50!='None' else '', 'id': 'S4_4_50', 'answer_type': 'Yes/No/Partly'})
+  if not defined('S4_4_51'):
+    define('S4_4_51', '_n/a_')
+  survey_data.append({'name': 'Please describe the undertaking&#x27;s initiatives or processes whose primary aim is to deliver positive impacts for consumers and end-users and that are designed also to support achievement of one or more of Sustainable Development Goals*.', 'value': S4_4_51, 'id': 'S4_4_51', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_4_50', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Are there internal functions that are involved in managing impacts and types of action taken by internal functions to address negative and advance positive impacts?*', 'value': S4_4_52 if S4_4_52!='None' else '', 'id': 'S4_4_52', 'answer_type': 'Yes/No/Partly'})
+  if not defined('S4_4_53'):
+    define('S4_4_53', '_n/a_')
+  survey_data.append({'name': 'Please describe the internal functions that are involved in managing impacts and types of action taken by internal functions to address negative and advance positive impacts*.', 'value': S4_4_53, 'id': 'S4_4_53', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_4_52', 'condition_criteria': 'Yes/Partly'})
+
+  card_title = 's4-4'
+  card_description = ''
+  # Description section in the wekan board - need to be composed with markdown and be populated with datapartner_url from the intervfile_uploadsiew.
+  card_title = f"{card_title}"
+  card_description = f"{card_description}"
+  
+  email_title = 's4-4'
+  #! Email compose for outgoing email.
+  email_body = f"Dear Partner, <br> <br> This is an automated message to confirm we have recieved the form - {email_title}.  <br> <br> Best regards <br> reportAll Team."
+  
+  email_data = [
+      {
+          "subject": email_title,
+          "body": email_body,
+          "recipients": [],
+          "from": "info@reportall.se",
+      }
+  ]
+
+  survey_data_ids = [d['id'] for d in survey_data]
+  survey_analytics = []
+  survey_analytics.append({"id": "sc_id","name": "score_coverage", "values": [dyn_id for dyn_id in survey_data_ids if any([sa_id in dyn_id for sa_id in ['S4_4_1', 'S4_4_2', 'S4_4_4', 'S4_4_5', 'S4_4_6', 'S4_4_7', 'S4_4_8', 'S4_4_9', 'S4_4_10', 'S4_4_11', 'S4_4_12', 'S4_4_13', 'S4_4_14', 'S4_4_15', 'S4_4_16', 'S4_4_17', 'S4_4_18', 'S4_4_19', 'S4_4_20', 'S4_4_21', 'S4_4_22', 'S4_4_23', 'S4_4_24', 'S4_4_25', 'S4_4_26', 'S4_4_27', 'S4_4_28', 'S4_4_29', 'S4_4_30', 'S4_4_31', 'S4_4_32', 'S4_4_33', 'S4_4_34', 'S4_4_35', 'S4_4_36', 'S4_4_37', 'S4_4_38', 'S4_4_39', 'S4_4_40', 'S4_4_41', 'S4_4_42']])]})
+  survey_analytics.append({"id": "S4_4_F1", "name": "Action plans and resources related to consumers and end-users", "values": ["S4_4_6", "S4_4_7", "S4_4_8", "S4_4_9", "S4_4_10", "S4_4_14", "S4_4_15", "S4_4_16", "S4_4_17"], "labels": ["Key action", "Scope", "Time horizon", "Provision of remedy", "Progress", "Current resources Capex", "Current resources Opex", "Future resources Capex", "Future resources Opex"], "dtypes": ["OPEN", "OPEN", "OPEN", "OPEN", "OPEN", "CURRENCY", "CURRENCY", "CURRENCY", "CURRENCY"]})
+
+  survey_analytics_dq = []
+  for sa_idx, sa in enumerate(survey_analytics):
+    if not all([_id in survey_data_ids for _id in sa["values"]]):
+      sd_tag = []
+      sd_found = []
+      drop_sa_ids = []
+      for sd in survey_data:
+        for _id in sa["values"]:
+          if _id in sd["id"]:
+            sd_found.append(sd["id"])
+            tag = sd.get("tag")
+            if tag:
+              sd_tag.append(tag)
+            break
+        if len(sd_found) == len(sa["values"]) and len(sd_found)>0:   # Found all sa values in survey_data
+          dynamic_sa_dict = survey_analytics[sa_idx].copy()
+          dynamic_sa_dict["id"] = dynamic_sa_dict["id"] + f"__DQ{sd_found[0].split('__DQ')[-1]}"
+          dynamic_sa_dict["values"] = sd_found
+          dynamic_sa_dict["tag"] = next(iter(set(sd_tag)), None)
+          survey_analytics_dq.append(dynamic_sa_dict)
+          drop_sa_ids.append(sa_idx)
+          sd_found = []
+          sd_tag = []
+    else:
+      survey_analytics_dq.append(sa)
+
+
+  data = {
+      "board_id": board_id,
+      "survey_id": survey_id,
+      "organisation_id": organisation_id,
+      "external_organisation": external_organisation,
+      "survey_data": survey_data,
+      "survey_analytics": survey_analytics_dq,
+      "survey_uploads": [],
+      "max_responses": {"count": "9", "date_period": "year", "column_title": "Fiscal year"},
+      "target_date": target_date,
+      "wekan_board": wekan_board,
+      "list_id": list_id,
+      "swimlane_id": swimlane_id,
+      "wekan_data": {
+          "card_title": card_title,
+          "card_description": card_description
+  
+      },
+      # "email_data": email_data,
+      "aux_data": [
+      ],
+      "guest_member": guest_member,
+    }
+
+
+  # send data to django
+  final_screen
+  reponse_status_code, response_content = store_interview_results(data)
+  if reponse_status_code == 200:
+    define('error_screen', False) 
+    command('exit', url=redirect_url)
+  else:
+    error_screen
+--- 
+progress: 0
+question: |
+  Are there action plans and resources to manage material impacts, risks, and opportunities related to consumers and end-users? [see ESRS 2 - MDR-A] 
+back button: True
+fields:
+  - no label: S4_4_1
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please disclose reasons for not having adopted actions.": S4_4_2
+    required: false
+    datatype: area
+    js show if: |
+      ['No'].includes(val('S4_4_1'))
+  - "Please disclose the timeframe in which the undertakings aims to adopt actions.*": S4_4_3
+    required: false
+    datatype: text
+    js show if: |
+      ['No'].includes(val('S4_4_1'))
+---
+objects:
+  - S4_4_4: DAList.using(object_type=Thing, there_are_any=True)
+  - EmptyPlaceHolderThing: Thing
+---
+question: |
+  Would you like to add another?
+yesno: S4_4_4.there_is_another
+back button: True
+---
+progress: 5
+question: |
+  Please elaborate on the questions below for each key action.
+back button: True
+fields:
+  - Please provide a short description of the key action.: S4_4_4[i].S4_4_5
+    datatype: text
+    required: false
+  - Please describe the undertaking&#x27;s key action related to resource use and circular economy.: S4_4_4[i].S4_4_6
+    datatype: text
+    required: false
+  - Please explain the scope of the undertaking&#x27;s key action related.: S4_4_4[i].S4_4_7
+    datatype: text
+    required: false
+  - Please disclose the time horizon under which key action is to be completed.: S4_4_4[i].S4_4_8
+    datatype: text
+    required: false
+  - Please describe key action taken, and its key results, to provide for and cooperate in or support provision of remedy for those harmed by actual material impacts.: S4_4_4[i].S4_4_9
+    datatype: text
+    required: false
+  - Please disclose quantitative information regarding the progress of actions or action plans disclosed in prior periods.: S4_4_4[i].S4_4_10
+    datatype: text
+    required: false
+  - Please disclose qualitative information regarding the progress of actions or action plans disclosed in prior periods.: S4_4_4[i].S4_4_11
+    datatype: text
+    required: false
+  - Please disclose what type of current and future financial and other resources that are allocated to the action plan (Capex and Opex).: S4_4_4[i].S4_4_12
+    datatype: text
+    required: false
+  - Please explain how current financial resources relate to most relevant amounts presented in financial statements.: S4_4_4[i].S4_4_13
+    datatype: text
+    required: false
+  - What current financial resources do you have allocated to the action plan? (Capex): S4_4_4[i].S4_4_14
+    datatype: number
+    required: false
+  - What current financial resources do you have allocated to the action plan? (Opex): S4_4_4[i].S4_4_15
+    datatype: number
+    required: false
+  - What future financial resources do you have allocated to the action plan? (Capex): S4_4_4[i].S4_4_16
+    datatype: number
+    required: false
+  - What future financial resources do you have allocated to the action plan? (Opex): S4_4_4[i].S4_4_17
+    datatype: number
+    required: false
+--- 
+progress: 10
+question: |
+  Please describe action planned or underway to prevent, mitigate or remediate material negative impacts on consumers and end-users. 
+help:
+  label: Help?
+  heading: <BR><h6>Explanation</h6>
+  content: |
+    AR 35. When disclosing the intended positive outcomes of the undertaking&#x27;s actions for consumers and/or end-users a distinction is to be made between evidence of certain activities having occurred (for example, that x number of consumers have received information about healthy eating habits) from evidence of actual outcomes for consumers and/or end-users (for example, that x number of consumers have adopted healthier eating habits).
+back button: True
+fields:
+  - no label: S4_4_18
+    datatype: area
+    required: false
+--- 
+progress: 15
+question: |
+  Has action been taken to provide or enable remedy in relation to an actual material impact? 
+back button: True
+fields:
+  - no label: S4_4_19
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please explain actions taken to provide or enable remedy in relation to an actual material impact.": S4_4_20
+    required: false
+    datatype: text
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_4_19'))
+--- 
+progress: 20
+question: |
+  Are there additional initiatives or processes with primary purpose of delivering positive impacts for consumers and end-users? 
+help:
+  label: Help?
+  heading: <BR><h6>Explanation</h6>
+  content: |
+    AR 36. When disclosing whether initiatives or processes also play a role in mitigating material negative impacts, the undertaking may, for example, consider programmes that aim to support heightened awareness of the risk of online scams, leading to a reduction in the number of cases of end-users experiencing breaches of data privacy.
+back button: True
+fields:
+  - no label: S4_4_21
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please describe the initiatives or processes with primary purpose of delivering positive impacts for consumers and end-users.": S4_4_22
+    required: false
+    datatype: area
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_4_21'))
+--- 
+progress: 25
+question: |
+  Is effectiveness of actions or initiatives in delivering outcomes for consumers and end-users tracked and assessed? 
+help:
+  label: Help?
+  heading: <BR><h6>Explanation</h6>
+  content: |
+    AR 30. In disclosing how it tracks the effectiveness of actions to manage material impacts during the reporting period, the undertaking may disclose any lessons learned from the previous and current reporting periods.
+    AR 31. Processes used to track the effectiveness of actions can include internal or external auditing or verification, court proceedings and/or related court decisions, impact assessments, measurement systems, stakeholder feedback, grievance mechanisms, external performance ratings, and benchmarking.
+    AR 32. Reporting on effectiveness is aimed at enabling the understanding of the links between actions taken by the undertaking and the effective management of impacts.
+back button: True
+fields:
+  - no label: S4_4_23
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please describe how effectiveness of actions or initiatives in delivering outcomes for consumers and end-users are tracked and assessed.": S4_4_24
+    required: false
+    datatype: area
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_4_23'))
+--- 
+progress: 30
+question: |
+  Does the undertaking have a process for identifying what action is needed and appropriate in response to particular actual or potential material negative impact on consumers and end-users? 
+help:
+  label: Help?
+  heading: <BR><h6>Explanation</h6>
+  content: |
+    AR 26. Appropriate action can vary according to whether the undertaking causes or contributes to a material impact, or whether the material impact is directly linked to its own operations, products or services through a business relationship.
+back button: True
+fields:
+  - no label: S4_4_25
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please describe the process for identifying what action is needed and appropriate in response to particular actual or potential material negative impact on consumers and end-users.": S4_4_26
+    required: false
+    datatype: area
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_4_25'))
+--- 
+progress: 35
+question: |
+  Has the undertaking defined an approach to taking action in relation to specific material impacts on consumers and end-users? 
+back button: True
+fields:
+  - no label: S4_4_27
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please describe the approach to taking action in relation to specific material impacts on consumers and end-users.": S4_4_28
+    required: false
+    datatype: area
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_4_27'))
+--- 
+progress: 40
+question: |
+  Has the undertaking formulated an approach to ensuring that processes to provide or enable remedy in event of material negative impacts on consumers and end-users are available and effective in their implementation and outcomes? 
+back button: True
+fields:
+  - no label: S4_4_29
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please share the approach to ensuring that processes to provide or enable remedy in event of material negative impacts on consumers and end-users are available and effective in their implementation and outcomes?": S4_4_30
+    required: false
+    datatype: area
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_4_29'))
+--- 
+progress: 45
+question: |
+  Are any actions planned or underway to mitigate material risks arising from impacts and dependencies on consumers and end-users? 
+help:
+  label: Help?
+  heading: <BR><h6>Explanation</h6>
+  content: |
+    AR 37. When disclosing the material risks and opportunities related to the undertaking’s impacts or dependencies on consumers and/or end-users, the undertaking may consider the following&#58;
+    (a)
+    risks related to the undertaking’s impacts on consumers and/or end-users may include reputational or legal exposure where poorly designed or defective products result in injuries or deaths;
+    (b)
+    risks related to the undertaking’s dependencies on consumers and/or end-users may include the loss of business continuity where an economic crisis makes consumers unable to afford certain products or services;
+    (c)
+    business opportunities related to the undertaking’s impacts on consumers and/or end- users may include market differentiation and greater customer appeal from offering safe products or privacy-respecting services; and
+    (d)
+    business opportunities related to the undertaking’s dependencies on consumers and/or end-users may include the achievement of a loyal future consumer base by ensuring, for example, that LGBTQI people are respected and that the undertaking’s selling practices do not exclude such people from the products or services it offers.
+    AR 38. When disclosing whether dependencies turn into risks, the undertaking shall consider external developments. AR 40. The undertaking shall consider the extent to which its processes to manage material risks related to consumers and/or end-users are integrated into its existing risk management processes and how.
+back button: True
+fields:
+  - no label: S4_4_31
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please describe the actions planned or underway to mitigate material risks arising from impacts and dependencies on consumers and end-users.": S4_4_32
+    required: false
+    datatype: area
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_4_31'))
+  - "Is effectiveness of those actions tracked?": S4_4_33
+    required: false
+    input type: radio
+    choices:
+      - Yes
+      - No
+      - Partly
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_4_31'))
+  - "Please describe how effectiveness of actions is tracked.": S4_4_34
+    required: false
+    datatype: area
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_4_33'))
+--- 
+progress: 50
+question: |
+  Are any actions planned or underway to pursue material opportunities in relation to consumers and end-users? 
+back button: True
+fields:
+  - no label: S4_4_35
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please describe the actions planned or underway to pursue material opportunities in relation to consumers and end-users.": S4_4_36
+    required: false
+    datatype: area
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_4_35'))
+--- 
+progress: 55
+question: |
+  Is the undertaking ensuring that own practices do not cause or contribute to material negative impacts on consumers and end-users? 
+help:
+  label: Help?
+  heading: <BR><h6>Explanation</h6>
+  content: |
+    AR 29. When disclosing whether and how it considers actual and potential impacts on consumers and/or end-users in decisions to terminate business relationships and whether and how it seeks to address any negative impacts that may result from termination, the undertaking may include examples.
+back button: True
+fields:
+  - no label: S4_4_37
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please disclose how the undertaking is ensuring that own practices do not cause or contribute to material negative impacts on consumers and end-users.": S4_4_38
+    required: false
+    datatype: area
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_4_37'))
+--- 
+progress: 60
+question: |
+  Are there any severe human rights issues and incidents connected to consumers and end-users? 
+back button: True
+fields:
+  - no label: S4_4_39
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please disclose the issues and incidents connected to consumers and end-users.": S4_4_40
+    required: false
+    datatype: area
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_4_39'))
+--- 
+progress: 65
+question: |
+  Are resources allocated to management of material impacts? 
+back button: True
+fields:
+  - no label: S4_4_41
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please disclose the resources allocated to management of material impacts.": S4_4_42
+    required: false
+    datatype: area
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_4_41'))
+--- 
+progress: 70
+question: |
+  Is the undertaking seeking to use leverage with relevant business relationships to manage material negative impacts affecting affecting consumers and end-users?* 
+help:
+  label: Help?
+  heading: <BR><h6>Explanation</h6>
+  content: |
+    AR 29. When disclosing whether and how it considers actual and potential impacts on consumers and/or end-users in decisions to terminate business relationships and whether and how it seeks to address any negative impacts that may result from termination, the undertaking may include examples.
+back button: True
+fields:
+  - no label: S4_4_43
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Disclose how the undertaking is seeking to use leverage with relevant business relationships to manage material negative impacts affecting affecting consumers and end-users*.": S4_4_44
+    required: false
+    datatype: area
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_4_43'))
+--- 
+progress: 75
+question: |
+  Is participation in industry or multi-stakeholder initiative and undertaking&#x27;s own involvement aiming to address material impacts?* 
+back button: True
+fields:
+  - no label: S4_4_45
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please disclose how participation in industry or multi-stakeholder initiative and undertaking&#x27;s own involvement aim to address material impacts*.": S4_4_46
+    required: false
+    datatype: area
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_4_45'))
+--- 
+progress: 80
+question: |
+  Do how consumers and end-users play any role in decisions regarding design and implementation of programmes or processes?* 
+back button: True
+fields:
+  - no label: S4_4_47
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please describe how consumers and end-users play any role in decisions regarding design and implementation of programmes or processes*.": S4_4_48
+    required: false
+    datatype: area
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_4_47'))
+--- 
+progress: 85
+question: |
+  Please share information about intended or achieved positive outcomes of programmes or processes for consumers and end-users.* 
+back button: True
+fields:
+  - no label: S4_4_49
+    datatype: area
+    required: false
+--- 
+progress: 90
+question: |
+  Does the undertaking have initiatives or processes whose primary aim is to deliver positive impacts for consumers and end-users and that are designed also to support achievement of one or more of Sustainable Development Goals?* 
+back button: True
+fields:
+  - no label: S4_4_50
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please describe the undertaking&#x27;s initiatives or processes whose primary aim is to deliver positive impacts for consumers and end-users and that are designed also to support achievement of one or more of Sustainable Development Goals*.": S4_4_51
+    required: false
+    datatype: area
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_4_50'))
+--- 
+progress: 95
+question: |
+  Are there internal functions that are involved in managing impacts and types of action taken by internal functions to address negative and advance positive impacts?* 
+back button: True
+fields:
+  - no label: S4_4_52
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please describe the internal functions that are involved in managing impacts and types of action taken by internal functions to address negative and advance positive impacts*.": S4_4_53
+    required: false
+    datatype: area
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_4_52'))
+---
+code: |
+  S4_4_4[i].name.text=S4_4_4[i].S4_4_5
+---
+#! Response report before submission
+progress: 100
+field: final_screen
+back button: True
+question: |
+  Congratulations!
+subquestion: |
+  All questions have been addressed. Press the submit button below to send in your answers.
+continue button label: Submit answers!
+
+---
+#! Response report before submission
+event: error_screen
+prevent going back: True
+question: |
+  Something went wrong when submitting your answers. 
+subquestion: |  
+  Please try again or contact <a href="mailto:info@beyondcsrd.se">info@beyondcsrd.se</a> for help.
+under: |
+  Details: ${ response_content.decode() }
+buttons:
+  Exit: exit
+
+---
+
+event: require_login_screen
+question: |
+  Oops! You have been logged out. Please login again.
+subquestion: |
+  ${ action_button_html(login_url, size='md', color='primary', label='Login', new_window=False) }
+
+---
+
+event: invalid_token_screen
+question: |
+  Your survey token is invalid. Please contact the administrator to request a new url. 
+subquestion: |
+  ${ action_button_html(login_url, size='md', color='primary', label='Login', new_window=False) }
+
+---

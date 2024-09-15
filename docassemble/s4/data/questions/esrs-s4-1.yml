@@ -1,0 +1,393 @@
+metadata:
+  title: |
+    ESRS-S4-1
+  short title: |
+    Social 4-1 Consumers and end-users&#58; Policies related to consumers and end-users.
+  show login: False
+  description: |
+    The undertaking shall describe its policies adopted to manage its material impacts of its products and/or services on consumers and end-users, as well as associated material risks and opportunities. All questions marked with * are voluntary. If unsure, leave blank. 
+  revision_date: 2024-09-15
+---
+modules:
+  - .post
+---
+features:
+  #css: sds.css # local CSS pointer ## goood tutorial for styling da: https://www.youtube.com/watch?v=6a3sER5MOK8
+  popover trigger: hover # how to display interactive content/hyperlinks
+  bootstrap theme: https://bootswatch.com/5/flatly/bootstrap.min.css
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  progressive: True
+  inverse navbar: False
+  hide navbar: True
+  question help button: True
+---
+field: intro_screen
+question: |
+  Social 4-1 Consumers and end-users&#58; Policies related to consumers and end-users.
+subquestion: |
+  The undertaking shall describe its policies adopted to manage its material impacts of its products and/or services on consumers and end-users, as well as associated material risks and opportunities. All questions marked with * are voluntary. If unsure, leave blank.
+
+  To get started, press **Continue**.
+---
+mandatory: True
+code: |
+  multi_user = True
+  guest_member = None
+
+  # Get query params
+  board_id = url_args.get("board_id", "")
+  survey_id = url_args.get("survey_id", "")
+  django_hostname = os.environ.get("DJANGOHOSTNAME")
+  redirect_url = f"https://{django_hostname}/pages/{board_id}/{survey_id}/completed/?submitted=1"
+  login_url = f"https://{django_hostname}/accounts/login/"
+
+  token = url_args.get("token")
+
+  intro_screen
+  validate_status, validate_content = validate_session({"token": token, "board_id": board_id, "survey_id": survey_id})
+  if validate_status != 200:
+     invalid_token_screen
+  else:
+    session_info = json.loads(validate_content)
+    guest_member = session_info.get("boardmember_id")
+    if guest_member:
+      redirect_url = "https://www.beyondcsrd.se"
+
+  # Get more query params
+  organisation_id = url_args.get("organisation", "")
+  target_date = url_args.get("target_date")
+  external_organisation = url_args.get("external_organisation")
+  wekan_board = url_args.get("wekan_board")   # If wekan_board is set to None the list and swimlane info will be retrieved in the django backend
+  list_id = url_args.get("list_id", "optional_default_list_id")
+  swimlane_id = url_args.get("swimlane_id", "optional_default_swimlane_id")
+
+  # This is needed so we can filter active interviews on board_id
+  session_tags().add(board_id)
+  session_tags().add(board_id+"__"+survey_id)
+  session_tags().add(board_id+"__"+survey_id+"__"+organisation_id)
+
+  survey_data = []
+  survey_data.append({'name': 'Does the undertaking have policies to manage material impacts, risks and opportunities related to consumers and end-users?', 'value': ESRS_S4_1_1 if ESRS_S4_1_1!='None' else '', 'id': 'ESRS_S4_1_1', 'answer_type': 'Yes/No/Partly'})
+  if not defined('ESRS_S4_1_2'):
+    define('ESRS_S4_1_2', '_n/a_')
+  survey_data.append({'name': 'Please disclose the reasons for not having adopted policies.', 'value': ESRS_S4_1_2, 'id': 'ESRS_S4_1_2', 'answer_type': 'OPEN_LARGE', 'condition': 'ESRS_S4_1_1', 'condition_criteria': 'No/Partly'})
+  if not defined('ESRS_S4_1_3'):
+    define('ESRS_S4_1_3', '_n/a_')
+  survey_data.append({'name': 'Please disclose the timeframe in which the undertakings aims to adopt policies.*', 'value': ESRS_S4_1_3, 'id': 'ESRS_S4_1_3', 'answer_type': 'OPEN', 'condition': 'ESRS_S4_1_1', 'condition_criteria': 'No/Partly'})
+  survey_data.append({'name': 'Please describe the key contents of policy/ies.', 'value': ESRS_S4_1_4, 'id': 'ESRS_S4_1_4', 'answer_type': 'OPEN_LARGE'})
+  survey_data.append({'name': 'Please describe the scope of policy or of its exclusions.', 'value': ESRS_S4_1_5, 'id': 'ESRS_S4_1_5', 'answer_type': 'OPEN_LARGE'})
+  survey_data.append({'name': 'Please describe the most senior level in organisation that is accountable for implementation of policy.', 'value': ESRS_S4_1_6, 'id': 'ESRS_S4_1_6', 'answer_type': 'OPEN'})
+  survey_data.append({'name': 'Please disclose third-party standards or initiatives that are respected through implementation of policy.', 'value': ESRS_S4_1_7, 'id': 'ESRS_S4_1_7', 'answer_type': 'OPEN_LARGE'})
+  survey_data.append({'name': 'Please describe consideration given to interests of key stakeholders in setting policy.', 'value': ESRS_S4_1_8, 'id': 'ESRS_S4_1_8', 'answer_type': 'OPEN_LARGE'})
+  survey_data.append({'name': 'Please explain how policy is made available to potentially affected stakeholders and stakeholders who need to help implement it.', 'value': ESRS_S4_1_9, 'id': 'ESRS_S4_1_9', 'answer_type': 'OPEN_LARGE'})
+  survey_data.append({'name': 'Please describe the policies to manage material impacts, risks and opportunities related to affected consumers and end-users, including specific groups or all consumers / end-users.', 'value': ESRS_S4_1_10, 'id': 'ESRS_S4_1_10', 'answer_type': 'OPEN_LARGE'})
+  survey_data.append({'name': 'Please describe relevant human rights policy commitments relevant to consumers and/or end-users.', 'value': ESRS_S4_1_11, 'id': 'ESRS_S4_1_11', 'answer_type': 'OPEN_LARGE'})
+  survey_data.append({'name': 'Please disclose the general approach in relation to respect for human rights of consumers and end-users.', 'value': ESRS_S4_1_12, 'id': 'ESRS_S4_1_12', 'answer_type': 'OPEN_LARGE'})
+  survey_data.append({'name': 'Please disclose the general approach in relation to engagement with consumers and end-users.', 'value': ESRS_S4_1_13, 'id': 'ESRS_S4_1_13', 'answer_type': 'OPEN_LARGE'})
+  survey_data.append({'name': 'Please disclose the general approach in relation to measures to provide and (or) enable remedy for human rights impacts.', 'value': ESRS_S4_1_14, 'id': 'ESRS_S4_1_14', 'answer_type': 'OPEN_LARGE'})
+  survey_data.append({'name': 'Are policies aligned with relevant internationally recognised instruments?', 'value': ESRS_S4_1_15 if ESRS_S4_1_15!='None' else '', 'id': 'ESRS_S4_1_15', 'answer_type': 'Yes/No/Partly'})
+  if not defined('ESRS_S4_1_16'):
+    define('ESRS_S4_1_16', '_n/a_')
+  survey_data.append({'name': 'Please explain how policies are aligned with relevant internationally recognised instruments.', 'value': ESRS_S4_1_16, 'id': 'ESRS_S4_1_16', 'answer_type': 'OPEN', 'condition': 'ESRS_S4_1_15', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Please disclose the extent and indication of nature of cases of non-respect of the UN Guiding Principles on Business and Human Rights, ILO Declaration on Fundamental Principles and Rights at Work or OECD Guidelines for Multinational Enterprises that involve consumers and/or end-users.*', 'value': ESRS_S4_1_17, 'id': 'ESRS_S4_1_17', 'answer_type': 'OPEN_LARGE'})
+  survey_data.append({'name': 'Please disclose explanations of significant changes to policies adopted during reporting year.*', 'value': ESRS_S4_1_18, 'id': 'ESRS_S4_1_18', 'answer_type': 'OPEN_LARGE'})
+  survey_data.append({'name': 'Please disclose an illustration of the types of communication of its policies to those individuals, group of individuals or entities for whom they are relevant.*', 'value': ESRS_S4_1_19, 'id': 'ESRS_S4_1_19', 'answer_type': 'OPEN_LARGE'})
+
+  card_title = 'esrs-s4-1'
+  card_description = ''
+  # Description section in the wekan board - need to be composed with markdown and be populated with datapartner_url from the intervfile_uploadsiew.
+  card_title = f"{card_title}"
+  card_description = f"{card_description}"
+  
+  email_title = 'esrs-s4-1'
+  #! Email compose for outgoing email.
+  email_body = f"Dear Partner, <br> <br> This is an automated message to confirm we have recieved the form - {email_title}.  <br> <br> Best regards <br> reportAll Team."
+  
+  email_data = [
+      {
+          "subject": email_title,
+          "body": email_body,
+          "recipients": [],
+          "from": "info@reportall.se",
+      }
+  ]
+
+  survey_data_ids = [d['id'] for d in survey_data]
+  survey_analytics = []
+  survey_analytics.append({"id": "sc_id","name": "score_coverage", "values": [dyn_id for dyn_id in survey_data_ids if any([sa_id in dyn_id for sa_id in ['ESRS_S4_1_1', 'ESRS_S4_1_2', 'ESRS_S4_1_4', 'ESRS_S4_1_5', 'ESRS_S4_1_6', 'ESRS_S4_1_7', 'ESRS_S4_1_8', 'ESRS_S4_1_9', 'ESRS_S4_1_10', 'ESRS_S4_1_11', 'ESRS_S4_1_12', 'ESRS_S4_1_13', 'ESRS_S4_1_14', 'ESRS_S4_1_15', 'ESRS_S4_1_16', 'ESRS_S4_1_17']])]})
+
+  survey_analytics_dq = []
+  for sa_idx, sa in enumerate(survey_analytics):
+    if not all([_id in survey_data_ids for _id in sa["values"]]):
+      sd_tag = []
+      sd_found = []
+      drop_sa_ids = []
+      for sd in survey_data:
+        for _id in sa["values"]:
+          if _id in sd["id"]:
+            sd_found.append(sd["id"])
+            tag = sd.get("tag")
+            if tag:
+              sd_tag.append(tag)
+            break
+        if len(sd_found) == len(sa["values"]) and len(sd_found)>0:   # Found all sa values in survey_data
+          dynamic_sa_dict = survey_analytics[sa_idx].copy()
+          dynamic_sa_dict["id"] = dynamic_sa_dict["id"] + f"__DQ{sd_found[0].split('__DQ')[-1]}"
+          dynamic_sa_dict["values"] = sd_found
+          dynamic_sa_dict["tag"] = next(iter(set(sd_tag)), None)
+          survey_analytics_dq.append(dynamic_sa_dict)
+          drop_sa_ids.append(sa_idx)
+          sd_found = []
+          sd_tag = []
+    else:
+      survey_analytics_dq.append(sa)
+
+
+  data = {
+      "board_id": board_id,
+      "survey_id": survey_id,
+      "organisation_id": organisation_id,
+      "external_organisation": external_organisation,
+      "survey_data": survey_data,
+      "survey_analytics": survey_analytics_dq,
+      "survey_uploads": [],
+      "max_responses": {"count": "9", "date_period": "year", "column_title": "Fiscal year"},
+      "target_date": target_date,
+      "wekan_board": wekan_board,
+      "list_id": list_id,
+      "swimlane_id": swimlane_id,
+      "wekan_data": {
+          "card_title": card_title,
+          "card_description": card_description
+  
+      },
+      # "email_data": email_data,
+      "aux_data": [
+      ],
+      "guest_member": guest_member,
+    }
+
+
+  # send data to django
+  final_screen
+  reponse_status_code, response_content = store_interview_results(data)
+  if reponse_status_code == 200:
+    define('error_screen', False) 
+    command('exit', url=redirect_url)
+  else:
+    error_screen
+--- 
+progress: 0
+question: |
+  Does the undertaking have policies to manage material impacts, risks and opportunities related to consumers and end-users? 
+back button: True
+fields:
+  - no label: ESRS_S4_1_1
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please disclose the reasons for not having adopted policies.": ESRS_S4_1_2
+    required: false
+    datatype: area
+    js show if: |
+      ['No', 'Partly'].includes(val('ESRS_S4_1_1'))
+  - "Please disclose the timeframe in which the undertakings aims to adopt policies.*": ESRS_S4_1_3
+    required: false
+    datatype: text
+    js show if: |
+      ['No', 'Partly'].includes(val('ESRS_S4_1_1'))
+--- 
+progress: 7
+question: |
+  Please describe the key contents of policy/ies. 
+help:
+  label: Help?
+  heading: <BR><h6>Explanation</h6>
+  content: |
+    AR 21. In relation to the protection of individuals that use the mechanisms against retaliation, the undertaking may describe whether it treats grievances confidentially and with respect to the rights of privacy and data protection; and whether to the mechanisms can be used anonymously (for example, through representation by a third party).
+back button: True
+fields:
+  - no label: ESRS_S4_1_4
+    datatype: area
+    required: false
+--- 
+progress: 13
+question: |
+  Please describe the scope of policy or of its exclusions. 
+back button: True
+fields:
+  - no label: ESRS_S4_1_5
+    datatype: area
+    required: false
+--- 
+progress: 19
+question: |
+  Please describe the most senior level in organisation that is accountable for implementation of policy. 
+back button: True
+fields:
+  - no label: ESRS_S4_1_6
+    datatype: text
+    required: false
+--- 
+progress: 25
+question: |
+  Please disclose third-party standards or initiatives that are respected through implementation of policy. 
+back button: True
+fields:
+  - no label: ESRS_S4_1_7
+    datatype: area
+    required: false
+--- 
+progress: 32
+question: |
+  Please describe consideration given to interests of key stakeholders in setting policy. 
+back button: True
+fields:
+  - no label: ESRS_S4_1_8
+    datatype: area
+    required: false
+--- 
+progress: 38
+question: |
+  Please explain how policy is made available to potentially affected stakeholders and stakeholders who need to help implement it. 
+back button: True
+fields:
+  - no label: ESRS_S4_1_9
+    datatype: area
+    required: false
+--- 
+progress: 44
+question: |
+  Please describe the policies to manage material impacts, risks and opportunities related to affected consumers and end-users, including specific groups or all consumers / end-users. 
+back button: True
+fields:
+  - no label: ESRS_S4_1_10
+    datatype: area
+    required: false
+--- 
+progress: 50
+question: |
+  Please describe relevant human rights policy commitments relevant to consumers and/or end-users. 
+back button: True
+fields:
+  - no label: ESRS_S4_1_11
+    datatype: area
+    required: false
+--- 
+progress: 57
+question: |
+  Please disclose the general approach in relation to respect for human rights of consumers and end-users. 
+back button: True
+fields:
+  - no label: ESRS_S4_1_12
+    datatype: area
+    required: false
+--- 
+progress: 63
+question: |
+  Please disclose the general approach in relation to engagement with consumers and end-users. 
+back button: True
+fields:
+  - no label: ESRS_S4_1_13
+    datatype: area
+    required: false
+--- 
+progress: 69
+question: |
+  Please disclose the general approach in relation to measures to provide and (or) enable remedy for human rights impacts. 
+back button: True
+fields:
+  - no label: ESRS_S4_1_14
+    datatype: area
+    required: false
+--- 
+progress: 75
+question: |
+  Are policies aligned with relevant internationally recognised instruments? 
+back button: True
+fields:
+  - no label: ESRS_S4_1_15
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please explain how policies are aligned with relevant internationally recognised instruments.": ESRS_S4_1_16
+    required: false
+    datatype: text
+    js show if: |
+      ['Yes', 'Partly'].includes(val('ESRS_S4_1_15'))
+--- 
+progress: 82
+question: |
+  Please disclose the extent and indication of nature of cases of non-respect of the UN Guiding Principles on Business and Human Rights, ILO Declaration on Fundamental Principles and Rights at Work or OECD Guidelines for Multinational Enterprises that involve consumers and/or end-users.* 
+back button: True
+fields:
+  - no label: ESRS_S4_1_17
+    datatype: area
+    required: false
+--- 
+progress: 88
+question: |
+  Please disclose explanations of significant changes to policies adopted during reporting year.* 
+back button: True
+fields:
+  - no label: ESRS_S4_1_18
+    datatype: area
+    required: false
+--- 
+progress: 94
+question: |
+  Please disclose an illustration of the types of communication of its policies to those individuals, group of individuals or entities for whom they are relevant.* 
+back button: True
+fields:
+  - no label: ESRS_S4_1_19
+    datatype: area
+    required: false
+---
+#! Response report before submission
+progress: 100
+field: final_screen
+back button: True
+question: |
+  Congratulations!
+subquestion: |
+  All questions have been addressed. Press the submit button below to send in your answers.
+continue button label: Submit answers!
+
+---
+#! Response report before submission
+event: error_screen
+prevent going back: True
+question: |
+  Something went wrong when submitting your answers. 
+subquestion: |  
+  Please try again or contact <a href="mailto:info@beyondcsrd.se">info@beyondcsrd.se</a> for help.
+under: |
+  Details: ${ response_content.decode() }
+buttons:
+  Exit: exit
+
+---
+
+event: require_login_screen
+question: |
+  Oops! You have been logged out. Please login again.
+subquestion: |
+  ${ action_button_html(login_url, size='md', color='primary', label='Login', new_window=False) }
+
+---
+
+event: invalid_token_screen
+question: |
+  Your survey token is invalid. Please contact the administrator to request a new url. 
+subquestion: |
+  ${ action_button_html(login_url, size='md', color='primary', label='Login', new_window=False) }
+
+---
