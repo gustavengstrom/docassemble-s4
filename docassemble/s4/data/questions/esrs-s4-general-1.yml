@@ -69,10 +69,10 @@ code: |
   session_tags().add(board_id+"__"+survey_id+"__"+organisation_id)
 
   survey_data = []
-  survey_data.append({'name': 'Does the undertaking or group have more than 750 employees during the financial year?', 'value': ESRS_S4_General_1_1 if ESRS_S4_General_1_1!='None' else '', 'id': 'ESRS_S4_General_1_1', 'answer_type': 'Yes/No/Partly'})
+  survey_data.append({'name': 'Does the undertaking or group have more than 750 employees during the financial year?', 'value': ESRS_S4_General_1_1 if ESRS_S4_General_1_1!='None' else '', 'id': 'ESRS_S4_General_1_1', 'answer_type': 'Yes/No'})
   if not defined('ESRS_S4_General_1_2'):
     define('ESRS_S4_General_1_2', '_n/a_')
-  survey_data.append({'name': 'Are the phasing-in exceptions applicable for the undertaking for the year of this reporting?', 'value': ESRS_S4_General_1_2 if ESRS_S4_General_1_2!='None' else '_n/a_', 'id': 'ESRS_S4_General_1_2', 'answer_type': 'Yes/No', 'condition': 'ESRS_S4_General_1_1', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Are the phasing-in exceptions applicable for the undertaking for the year of this reporting?', 'value': ESRS_S4_General_1_2 if ESRS_S4_General_1_2!='None' else '_n/a_', 'id': 'ESRS_S4_General_1_2', 'answer_type': 'Yes/No', 'condition': 'ESRS_S4_General_1_1', 'condition_criteria': 'No'})
   if not defined('ESRS_S4_General_1_3'):
     define('ESRS_S4_General_1_3', '_n/a_')
   survey_data.append({'name': 'Would the undertaking nevertheless want to disclose S4 in preparation for future reports?', 'value': ESRS_S4_General_1_3 if ESRS_S4_General_1_3!='None' else '_n/a_', 'id': 'ESRS_S4_General_1_3', 'answer_type': 'Yes/No', 'condition': 'ESRS_S4_General_1_2', 'condition_criteria': 'Yes', 'dynamic_header':'Please elaborate on the questions below for each material sustainability topic covered by ESRS S4 that has been assessed to be material as a result of the undertaking’s materiality assessment.', 'dynamic_condition_criteria': 'No'})
@@ -202,7 +202,6 @@ fields:
     choices:
       - Yes
       - No
-      - Partly
   - "Are the phasing-in exceptions applicable for the undertaking for the year of this reporting?": ESRS_S4_General_1_2
     required: false
     input type: radio
@@ -210,7 +209,7 @@ fields:
       - Yes
       - No
     js show if: |
-      ['Yes', 'Partly'].includes(val('ESRS_S4_General_1_1'))
+      ['No'].includes(val('ESRS_S4_General_1_1'))
   - "Would the undertaking nevertheless want to disclose S4 in preparation for future reports?": ESRS_S4_General_1_3
     required: false
     input type: radio
