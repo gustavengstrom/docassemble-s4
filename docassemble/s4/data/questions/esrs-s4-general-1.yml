@@ -6,7 +6,7 @@ metadata:
   show login: False
   description: |
     The objective of this Standard is to specify disclosure requirements which will enable users of the sustainability statement to understand material impacts on consumers and endusers connected with the undertaking’s own operations and value chain, including through its products or services, as well as through its business relationships, and its related material risks and opportunities. If unsure, leave blank. 
-  revision_date: 2024-09-16
+  revision_date: 2024-11-25
 ---
 modules:
   - .post
@@ -118,7 +118,9 @@ code: |
 
   survey_data_ids = [d['id'] for d in survey_data]
   survey_analytics = []
-  survey_analytics.append({"id": "sc_id","name": "score_coverage", "values": [dyn_id for dyn_id in survey_data_ids if any([sa_id in dyn_id for sa_id in ['ESRS_S4_General_1_4', 'ESRS_S4_General_1_5', 'ESRS_S4_General_1_6', 'ESRS_S4_General_1_7', 'ESRS_S4_General_1_8', 'ESRS_S4_General_1_9']])]})
+  survey_analytics.append({"id": "S4_compliance_F1", "name": "S4 compliance ratio", "values": ["ESRS_S4_General_1_4", "ESRS_S4_General_1_5", "ESRS_S4_General_1_6", "ESRS_S4_General_1_7", "ESRS_S4_General_1_8", "ESRS_S4_General_1_9"], "dtypes": []})
+  survey_analytics.append({"id": "ESRS_S4_General_1_F1", "name": "Material topics", "values": ["ESRS_S4_General_1_5"], "dtypes": ["OPEN_LARGE"]})
+  survey_analytics.append({"id": "ESRS_S4_General_1_F2", "name": "Material topics", "values": ["ESRS_S4_General_1_6", "ESRS_S4_General_1_7", "ESRS_S4_General_1_8", "ESRS_S4_General_1_9"], "dtypes": ["OPEN", "OPEN", "OPEN", "OPEN"]})
 
   survey_analytics_dq = []
   for sa_idx, sa in enumerate(survey_analytics):
@@ -154,7 +156,7 @@ code: |
       "survey_data": survey_data,
       "survey_analytics": survey_analytics_dq,
       "survey_uploads": [],
-      "max_responses": {"count": "9", "date_period": "year", "column_title": "Fiscal year"},
+      "max_responses": {"count": "1", "date_period": "year", "column_title": "Fiscal year"},
       "wekan_data": {
           "card_title": card_title,
           "card_description": card_description

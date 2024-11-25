@@ -6,7 +6,7 @@ metadata:
   show login: False
   description: |
     The undertaking shall disclose its material impacts, risks and opportunities and how they interact with its strategy and business model. If unsure, leave blank. 
-  revision_date: 2024-09-16
+  revision_date: 2024-11-25
 ---
 modules:
   - .post
@@ -97,7 +97,8 @@ code: |
 
   survey_data_ids = [d['id'] for d in survey_data]
   survey_analytics = []
-  survey_analytics.append({"id": "sc_id","name": "score_coverage", "values": [dyn_id for dyn_id in survey_data_ids if any([sa_id in dyn_id for sa_id in ['ESRS_2_SBM_3_1', 'ESRS_2_SBM_3_2', 'ESRS_2_SBM_3_3', 'ESRS_2_SBM_3_4', 'ESRS_2_SBM_3_5', 'ESRS_2_SBM_3_6', 'ESRS_2_SBM_3_7', 'ESRS_2_SBM_3_8', 'ESRS_2_SBM_3_9']])]})
+  survey_analytics.append({"id": "S4_compliance_F1", "name": "S4 compliance ratio", "values": ["ESRS_2_SBM_3_1", "ESRS_2_SBM_3_2", "ESRS_2_SBM_3_3", "ESRS_2_SBM_3_4", "ESRS_2_SBM_3_5", "ESRS_2_SBM_3_6", "ESRS_2_SBM_3_7", "ESRS_2_SBM_3_8", "ESRS_2_SBM_3_9"], "dtypes": []})
+  survey_analytics.append({"id": "ESRS_2_SBM_3_F1", "name": "Impacted end-users and consumers.", "values": ["ESRS_2_SBM_3_1", "ESRS_2_SBM_3_2", "ESRS_2_SBM_3_4", "ESRS_2_SBM_3_5", "ESRS_2_SBM_3_6"], "dtypes": ["YES/NO/PARTLY", "OPEN_LARGE", "YES/NO/PARTLY", "OPEN_LARGE", "OPEN_LARGE"]})
 
   survey_analytics_dq = []
   for sa_idx, sa in enumerate(survey_analytics):
@@ -133,7 +134,7 @@ code: |
       "survey_data": survey_data,
       "survey_analytics": survey_analytics_dq,
       "survey_uploads": [],
-      "max_responses": {"count": "9", "date_period": "year", "column_title": "Fiscal year"},
+      "max_responses": {"count": "1", "date_period": "year", "column_title": "Fiscal year"},
       "wekan_data": {
           "card_title": card_title,
           "card_description": card_description

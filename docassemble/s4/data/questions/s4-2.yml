@@ -6,7 +6,7 @@ metadata:
   show login: False
   description: |
     The undertaking shall disclose its general processes for engaging with consumers and end-users and their representatives about actual and potential impacts on them. All questions marked with * are voluntary. If unsure, leave blank. 
-  revision_date: 2024-09-16
+  revision_date: 2024-11-25
 ---
 modules:
   - .post
@@ -102,7 +102,7 @@ code: |
 
   survey_data_ids = [d['id'] for d in survey_data]
   survey_analytics = []
-  survey_analytics.append({"id": "sc_id","name": "score_coverage", "values": [dyn_id for dyn_id in survey_data_ids if any([sa_id in dyn_id for sa_id in ['S4_2_1', 'S4_2_2', 'S4_2_3', 'S4_2_4', 'S4_2_5', 'S4_2_6', 'S4_2_7', 'S4_2_8', 'S4_2_9', 'S4_2_10']])]})
+  survey_analytics.append({"id": "S4_compliance_F1", "name": "S4 compliance ratio", "values": ["S4_2_1", "S4_2_2", "S4_2_3", "S4_2_4", "S4_2_5", "S4_2_6", "S4_2_7", "S4_2_8", "S4_2_9", "S4_2_10"], "dtypes": []})
 
   survey_analytics_dq = []
   for sa_idx, sa in enumerate(survey_analytics):
@@ -138,7 +138,7 @@ code: |
       "survey_data": survey_data,
       "survey_analytics": survey_analytics_dq,
       "survey_uploads": [],
-      "max_responses": {"count": "9", "date_period": "year", "column_title": "Fiscal year"},
+      "max_responses": {"count": "1", "date_period": "year", "column_title": "Fiscal year"},
       "wekan_data": {
           "card_title": card_title,
           "card_description": card_description

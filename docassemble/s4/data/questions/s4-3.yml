@@ -6,7 +6,7 @@ metadata:
   show login: False
   description: |
     The undertaking shall describe the processes it has in place to provide for or cooperate in the remediation of negative impacts on consumers and end-users that the undertaking is connected with, as well as channels available to consumers and end-users to raise concerns and have them addressed. All questions marked with * are voluntary. If unsure, leave blank. 
-  revision_date: 2024-09-16
+  revision_date: 2024-11-25
 ---
 modules:
   - .post
@@ -118,8 +118,8 @@ code: |
 
   survey_data_ids = [d['id'] for d in survey_data]
   survey_analytics = []
-  survey_analytics.append({"id": "sc_id","name": "score_coverage", "values": [dyn_id for dyn_id in survey_data_ids if any([sa_id in dyn_id for sa_id in ['S4_3_1', 'S4_3_2', 'S4_3_3', 'S4_3_5', 'S4_3_6', 'S4_3_7', 'S4_3_8', 'S4_3_9', 'S4_3_10', 'S4_3_11', 'S4_3_12']])]})
-  survey_analytics.append({"id": "S4_3_F1", "name": "Number of complaints received during the reporting period.", "values": ["S4_3_18"], "labels": [""], "dtypes": ["INTEGER"]})
+  survey_analytics.append({"id": "S4_compliance_F1", "name": "S4 compliance ratio", "values": ["S4_3_1", "S4_3_2", "S4_3_3", "S4_3_5", "S4_3_6", "S4_3_7", "S4_3_8", "S4_3_9", "S4_3_10", "S4_3_11", "S4_3_12"], "dtypes": []})
+  survey_analytics.append({"id": "S4_3_F1", "name": "Number of complaints received during the reporting period.", "values": ["S4_3_18"], "dtypes": ["INTEGER"]})
 
   survey_analytics_dq = []
   for sa_idx, sa in enumerate(survey_analytics):
@@ -155,7 +155,7 @@ code: |
       "survey_data": survey_data,
       "survey_analytics": survey_analytics_dq,
       "survey_uploads": [],
-      "max_responses": {"count": "9", "date_period": "year", "column_title": "Fiscal year"},
+      "max_responses": {"count": "1", "date_period": "year", "column_title": "Fiscal year"},
       "wekan_data": {
           "card_title": card_title,
           "card_description": card_description

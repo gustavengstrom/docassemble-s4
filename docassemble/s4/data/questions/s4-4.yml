@@ -6,7 +6,7 @@ metadata:
   show login: False
   description: |
     The undertaking shall disclose how it takes action to address material impacts on consumers and end-users, and to manage material risks and pursue material opportunities related to consumers and end-users, and effectiveness of those actions. All questions marked with * are voluntary. If unsure, leave blank. 
-  revision_date: 2024-09-16
+  revision_date: 2024-11-25
 ---
 modules:
   - .post
@@ -214,8 +214,8 @@ code: |
 
   survey_data_ids = [d['id'] for d in survey_data]
   survey_analytics = []
-  survey_analytics.append({"id": "sc_id","name": "score_coverage", "values": [dyn_id for dyn_id in survey_data_ids if any([sa_id in dyn_id for sa_id in ['S4_4_1', 'S4_4_2', 'S4_4_4', 'S4_4_5', 'S4_4_6', 'S4_4_7', 'S4_4_8', 'S4_4_9', 'S4_4_10', 'S4_4_11', 'S4_4_12', 'S4_4_13', 'S4_4_14', 'S4_4_15', 'S4_4_16', 'S4_4_17', 'S4_4_18', 'S4_4_19', 'S4_4_20', 'S4_4_21', 'S4_4_22', 'S4_4_23', 'S4_4_24', 'S4_4_25', 'S4_4_26', 'S4_4_27', 'S4_4_28', 'S4_4_29', 'S4_4_30', 'S4_4_31', 'S4_4_32', 'S4_4_33', 'S4_4_34', 'S4_4_35', 'S4_4_36', 'S4_4_37', 'S4_4_38', 'S4_4_39', 'S4_4_40', 'S4_4_41', 'S4_4_42']])]})
-  survey_analytics.append({"id": "S4_4_F1", "name": "Action plans and resources related to consumers and end-users", "values": ["S4_4_6", "S4_4_7", "S4_4_8", "S4_4_9", "S4_4_10", "S4_4_14", "S4_4_15", "S4_4_16", "S4_4_17"], "labels": ["Key action", "Scope", "Time horizon", "Provision of remedy", "Progress", "Current resources Capex", "Current resources Opex", "Future resources Capex", "Future resources Opex"], "dtypes": ["OPEN", "OPEN", "OPEN", "OPEN", "OPEN", "CURRENCY", "CURRENCY", "CURRENCY", "CURRENCY"]})
+  survey_analytics.append({"id": "S4_compliance_F1", "name": "S4 compliance ratio", "values": ["S4_4_1", "S4_4_2", "S4_4_4", "S4_4_5", "S4_4_6", "S4_4_7", "S4_4_8", "S4_4_9", "S4_4_10", "S4_4_11", "S4_4_12", "S4_4_13", "S4_4_14", "S4_4_15", "S4_4_16", "S4_4_17", "S4_4_18", "S4_4_19", "S4_4_20", "S4_4_21", "S4_4_22", "S4_4_23", "S4_4_24", "S4_4_25", "S4_4_26", "S4_4_27", "S4_4_28", "S4_4_29", "S4_4_30", "S4_4_31", "S4_4_32", "S4_4_33", "S4_4_34", "S4_4_35", "S4_4_36", "S4_4_37", "S4_4_38", "S4_4_39", "S4_4_40", "S4_4_41", "S4_4_42"], "dtypes": []})
+  survey_analytics.append({"id": "S4_4_F1", "name": "Action plans and resources related to consumers and end-users", "values": ["S4_4_6", "S4_4_7", "S4_4_8", "S4_4_9", "S4_4_10", "S4_4_14", "S4_4_15", "S4_4_16", "S4_4_17"], "dtypes": ["OPEN", "OPEN", "OPEN", "OPEN", "OPEN", "CURRENCY", "CURRENCY", "CURRENCY", "CURRENCY"]})
 
   survey_analytics_dq = []
   for sa_idx, sa in enumerate(survey_analytics):
@@ -251,7 +251,7 @@ code: |
       "survey_data": survey_data,
       "survey_analytics": survey_analytics_dq,
       "survey_uploads": [],
-      "max_responses": {"count": "9", "date_period": "year", "column_title": "Fiscal year"},
+      "max_responses": {"count": "1", "date_period": "year", "column_title": "Fiscal year"},
       "wekan_data": {
           "card_title": card_title,
           "card_description": card_description
