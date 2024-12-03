@@ -6,7 +6,7 @@ metadata:
   show login: False
   description: |
     The undertaking shall disclose how it takes action to address material impacts on consumers and end-users, and to manage material risks and pursue material opportunities related to consumers and end-users, and effectiveness of those actions. All questions marked with * are voluntary. If unsure, leave blank. 
-  revision_date: 2024-11-25
+  revision_date: 2024-12-03
 ---
 modules:
   - .post

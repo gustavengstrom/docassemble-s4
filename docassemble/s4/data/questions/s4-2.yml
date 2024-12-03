@@ -6,7 +6,7 @@ metadata:
   show login: False
   description: |
     The undertaking shall disclose its general processes for engaging with consumers and end-users and their representatives about actual and potential impacts on them. All questions marked with * are voluntary. If unsure, leave blank. 
-  revision_date: 2024-11-25
+  revision_date: 2024-12-03
 ---
 modules:
   - .post

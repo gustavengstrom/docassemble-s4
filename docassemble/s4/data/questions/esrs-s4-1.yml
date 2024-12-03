@@ -6,7 +6,7 @@ metadata:
   show login: False
   description: |
     The undertaking shall describe its policies adopted to manage its material impacts of its products and/or services on consumers and end-users, as well as associated material risks and opportunities. All questions marked with * are voluntary. If unsure, leave blank. 
-  revision_date: 2024-11-25
+  revision_date: 2024-12-03
 ---
 modules:
   - .post
@@ -112,8 +112,8 @@ code: |
   survey_data_ids = [d['id'] for d in survey_data]
   survey_analytics = []
   survey_analytics.append({"id": "S4_compliance_F1", "name": "S4 compliance ratio", "values": ["ESRS_S4_1_1", "ESRS_S4_1_2", "ESRS_S4_1_4", "ESRS_S4_1_5", "ESRS_S4_1_6", "ESRS_S4_1_7", "ESRS_S4_1_8", "ESRS_S4_1_9", "ESRS_S4_1_10", "ESRS_S4_1_11", "ESRS_S4_1_12", "ESRS_S4_1_13", "ESRS_S4_1_14", "ESRS_S4_1_15", "ESRS_S4_1_16", "ESRS_S4_1_17"], "dtypes": []})
-  survey_analytics.append({"id": "ESRS_S4_1_F1", "name": "Policy", "values": ["ESRS_S4_1_2", "ESRS_S4_1_3"], "dtypes": []})
-  survey_analytics.append({"id": "ESRS_S4_1_F2", "name": "Policy", "values": ["ESRS_S4_1_4", "ESRS_S4_1_6"], "dtypes": []})
+  survey_analytics.append({"id": "ESRS_S4_1_F1", "name": "Policy", "values": ["ESRS_S4_1_2", "ESRS_S4_1_3"], "dtypes": ["OPEN_LARGE", "OPEN"]})
+  survey_analytics.append({"id": "ESRS_S4_1_F2", "name": "Policy", "values": ["ESRS_S4_1_4", "ESRS_S4_1_6"], "dtypes": ["OPEN_LARGE", "OPEN"]})
 
   survey_analytics_dq = []
   for sa_idx, sa in enumerate(survey_analytics):

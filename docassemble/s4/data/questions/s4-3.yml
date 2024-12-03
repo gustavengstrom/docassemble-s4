@@ -6,7 +6,7 @@ metadata:
   show login: False
   description: |
     The undertaking shall describe the processes it has in place to provide for or cooperate in the remediation of negative impacts on consumers and end-users that the undertaking is connected with, as well as channels available to consumers and end-users to raise concerns and have them addressed. All questions marked with * are voluntary. If unsure, leave blank. 
-  revision_date: 2024-11-25
+  revision_date: 2024-12-03
 ---
 modules:
   - .post
@@ -83,7 +83,7 @@ code: |
   if not defined('S4_3_9'):
     define('S4_3_9', '_n/a_')
   survey_data.append({'name': 'Please disclose how they are tracked and monitored and how effectiveness of channels is ensured.', 'value': S4_3_9, 'id': 'S4_3_9', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_3_8', 'condition_criteria': 'Yes/Partly'})
-  survey_data.append({'name': 'Does the undertaking assess that affected communities are aware of and trust structures or processes as a way to raise their concerns or needs and have them addressed?', 'value': S4_3_10 if S4_3_10!='None' else '', 'id': 'S4_3_10', 'answer_type': 'Yes/No/Partly'})
+  survey_data.append({'name': 'Does the undertaking assess that consumers and end-users are aware of and trust structures or processes as a way to raise their concerns or needs and have them addressed?', 'value': S4_3_10 if S4_3_10!='None' else '', 'id': 'S4_3_10', 'answer_type': 'Yes/No/Partly'})
   if not defined('S4_3_11'):
     define('S4_3_11', '_n/a_')
   survey_data.append({'name': 'Please describe how the undertaking assess that affected communities are aware of and trust structures or processes as a way to raise their concerns or needs and have them addressed.', 'value': S4_3_11, 'id': 'S4_3_11', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_3_10', 'condition_criteria': 'Yes/Partly'})
@@ -262,7 +262,7 @@ fields:
 --- 
 progress: 37
 question: |
-  Does the undertaking assess that affected communities are aware of and trust structures or processes as a way to raise their concerns or needs and have them addressed? 
+  Does the undertaking assess that consumers and end-users are aware of and trust structures or processes as a way to raise their concerns or needs and have them addressed? 
 help:
   label: Help?
   heading: <BR><h6>Explanation</h6>

@@ -1,0 +1,310 @@
+metadata:
+  title: |
+    S4-ESRS-2-SBM-3
+  short title: |
+    Strategy and Business Model (SBM)&#58; Disclosure Requirement related to ESRS 2 SBM-3 Material impacts, risks and opportunities and their interaction with strategy and business model
+  show login: False
+  description: |
+    The undertaking shall disclose its material impacts, risks and opportunities and how they interact with its strategy and business model. If unsure, leave blank. 
+  revision_date: 2024-12-03
+---
+modules:
+  - .post
+---
+features:
+  #css: sds.css # local CSS pointer ## goood tutorial for styling da: https://www.youtube.com/watch?v=6a3sER5MOK8
+  popover trigger: hover # how to display interactive content/hyperlinks
+  bootstrap theme: https://bootswatch.com/5/flatly/bootstrap.min.css
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  progressive: True
+  inverse navbar: False
+  hide navbar: True
+  question help button: True
+---
+field: intro_screen
+question: |
+  Strategy and Business Model (SBM)&#58; Disclosure Requirement related to ESRS 2 SBM-3 Material impacts, risks and opportunities and their interaction with strategy and business model
+subquestion: |
+  The undertaking shall disclose its material impacts, risks and opportunities and how they interact with its strategy and business model. If unsure, leave blank.
+
+  To get started, press **Continue**.
+---
+mandatory: True
+code: |
+  multi_user = True
+  guest_member = None
+
+  # Get query params
+  board_id = url_args.get("board_id", "")
+  survey_id = url_args.get("survey_id", "")
+  django_hostname = os.environ.get("DJANGOHOSTNAME")
+  redirect_url = f"https://{django_hostname}/pages/{board_id}/{survey_id}/completed/?submitted=1"
+  login_url = f"https://{django_hostname}/accounts/login/"
+
+  intro_screen
+  validate_status, validate_content = validate_session({"board_id": board_id, "survey_id": survey_id})
+  if validate_status != 200:
+     invalid_token_screen
+  else:
+    session_info = json.loads(validate_content)
+    guest_member = session_info.get("guest_member")
+    external = session_info.get("external")
+    if guest_member:
+      redirect_url = "https://www.beyondcsrd.se"
+
+  # This is needed so we can filter active interviews on board_id
+  session_tags().add(board_id)
+  session_tags().add(board_id+"__"+survey_id)
+
+  if external:
+    external_organisation_name
+  else:
+    external_organisation_name = None
+
+  survey_data = []
+  survey_data.append({'name': 'Are all consumers and end-users who can be materially impacted by undertaking included in scope of disclosure under ESRS 2?', 'value': S4_ESRS_2_SBM_3_1 if S4_ESRS_2_SBM_3_1!='None' else '', 'id': 'S4_ESRS_2_SBM_3_1', 'answer_type': 'Yes/No/Partly'})
+  survey_data.append({'name': 'Please describe the types of consumers and end-users subject to material impacts.', 'value': S4_ESRS_2_SBM_3_2, 'id': 'S4_ESRS_2_SBM_3_2', 'answer_type': 'OPEN_LARGE'})
+  survey_data.append({'name': 'Please share what type of consumers and end-users that are subject to material impacts by own operations or through value chain.', 'value': S4_ESRS_2_SBM_3_3, 'id': 'S4_ESRS_2_SBM_3_3', 'answer_type': 'OPEN'})
+  survey_data.append({'name': 'Is there material negative impacts occurrence (consumers and end-users)?', 'value': S4_ESRS_2_SBM_3_4 if S4_ESRS_2_SBM_3_4!='None' else '', 'id': 'S4_ESRS_2_SBM_3_4', 'answer_type': 'Yes/No/Partly'})
+  survey_data.append({'name': 'Please describe activities that result in positive impacts and types of consumers and end-users that are positively affected or could be positively affected.', 'value': S4_ESRS_2_SBM_3_5, 'id': 'S4_ESRS_2_SBM_3_5', 'answer_type': 'OPEN_LARGE'})
+  survey_data.append({'name': 'Please describe material risks and opportunities arising from impacts and dependencies on consumers and end-users.', 'value': S4_ESRS_2_SBM_3_6, 'id': 'S4_ESRS_2_SBM_3_6', 'answer_type': 'OPEN_LARGE'})
+  survey_data.append({'name': 'Please disclose whether the undertaking has developed an understanding of how consumers and end-users with particular characteristics, those working in particular contexts, or those undertaking particular activities may be at greater risk of harm.', 'value': S4_ESRS_2_SBM_3_7 if S4_ESRS_2_SBM_3_7!='None' else '', 'id': 'S4_ESRS_2_SBM_3_7', 'answer_type': 'Yes/No/Partly'})
+  if not defined('S4_ESRS_2_SBM_3_8'):
+    define('S4_ESRS_2_SBM_3_8', '_n/a_')
+  survey_data.append({'name': 'Please disclose how the undertaking has developed an understanding of how consumers and end-users with particular characteristics, those working in particular contexts, or those undertaking particular activities may be at greater risk of harm.', 'value': S4_ESRS_2_SBM_3_8, 'id': 'S4_ESRS_2_SBM_3_8', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_ESRS_2_SBM_3_7', 'condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Please disclose which of material risks and opportunities arising from impacts and dependencies on consumers and end-users are impacts on specific groups.', 'value': S4_ESRS_2_SBM_3_9, 'id': 'S4_ESRS_2_SBM_3_9', 'answer_type': 'OPEN_LARGE'})
+
+  card_title = 's4-esrs-2-sbm-3'
+  card_description = ''
+  # Description section in the wekan board - need to be composed with markdown and be populated with datapartner_url from the intervfile_uploadsiew.
+  card_title = f"{card_title}"
+  card_description = f"{card_description}"
+  
+  email_title = 's4-esrs-2-sbm-3'
+  #! Email compose for outgoing email.
+  email_body = f"Dear Partner, <br> <br> This is an automated message to confirm we have recieved the form - {email_title}.  <br> <br> Best regards <br> reportAll Team."
+  
+  email_data = [
+      {
+          "subject": email_title,
+          "body": email_body,
+          "recipients": [],
+          "from": "info@reportall.se",
+      }
+  ]
+
+  survey_data_ids = [d['id'] for d in survey_data]
+  survey_analytics = []
+  survey_analytics.append({"id": "S4_compliance_F1", "name": "S4 compliance ratio", "values": ["S4_ESRS_2_SBM_3_1", "S4_ESRS_2_SBM_3_2", "S4_ESRS_2_SBM_3_3", "S4_ESRS_2_SBM_3_4", "S4_ESRS_2_SBM_3_5", "S4_ESRS_2_SBM_3_6", "S4_ESRS_2_SBM_3_7", "S4_ESRS_2_SBM_3_8", "S4_ESRS_2_SBM_3_9"], "dtypes": []})
+  survey_analytics.append({"id": "S4_ESRS_2_SBM_3_F1", "name": "Impacted end-users and consumers.", "values": ["S4_ESRS_2_SBM_3_1", "S4_ESRS_2_SBM_3_2", "S4_ESRS_2_SBM_3_4", "S4_ESRS_2_SBM_3_5", "S4_ESRS_2_SBM_3_6"], "dtypes": ["YES/NO/PARTLY", "OPEN_LARGE", "YES/NO/PARTLY", "OPEN_LARGE", "OPEN_LARGE"]})
+
+  survey_analytics_dq = []
+  for sa_idx, sa in enumerate(survey_analytics):
+    if not all([_id in survey_data_ids for _id in sa["values"]]):
+      sd_tag = []
+      sd_found = []
+      drop_sa_ids = []
+      for sd in survey_data:
+        for _id in sa["values"]:
+          if _id in sd["id"]:
+            sd_found.append(sd["id"])
+            tag = sd.get("tag")
+            if tag:
+              sd_tag.append(tag)
+            break
+        if len(sd_found) == len(sa["values"]) and len(sd_found)>0:   # Found all sa values in survey_data
+          dynamic_sa_dict = survey_analytics[sa_idx].copy()
+          dynamic_sa_dict["id"] = dynamic_sa_dict["id"] + f"__DQ{sd_found[0].split('__DQ')[-1]}"
+          dynamic_sa_dict["values"] = sd_found
+          dynamic_sa_dict["tag"] = next(iter(set(sd_tag)), None)
+          survey_analytics_dq.append(dynamic_sa_dict)
+          drop_sa_ids.append(sa_idx)
+          sd_found = []
+          sd_tag = []
+    else:
+      survey_analytics_dq.append(sa)
+
+
+  data = {
+      "board_id": board_id,
+      "survey_id": survey_id,
+      "external_organisation": external_organisation_name,
+      "survey_data": survey_data,
+      "survey_analytics": survey_analytics_dq,
+      "survey_uploads": [],
+      "max_responses": {"count": "1", "date_period": "year", "column_title": "Fiscal year"},
+      "wekan_data": {
+          "card_title": card_title,
+          "card_description": card_description
+  
+      },
+      # "email_data": email_data,
+      "aux_data": [
+      ],
+      "guest_member": guest_member,
+    }
+
+
+  # send data to django
+  final_screen
+  reponse_status_code, response_content = store_interview_results(data)
+  if reponse_status_code == 200:
+    define('error_screen', False) 
+    command('exit', url=redirect_url)
+  else:
+    error_screen
+--- 
+progress: 0
+question: |
+  Are all consumers and end-users who can be materially impacted by undertaking included in scope of disclosure under ESRS 2? 
+help:
+  label: Help?
+  heading: <BR><h6>Explanation</h6>
+  content: |
+    AR 5.
+    Impacts on consumers and/or end-users can originate in the undertaking’s business model or strategy in a number of different ways. For example, impacts may relate to the undertaking’s value proposition (for example, providing online platforms with potential for online and offline harm), its value chain (for example, speed in developing products or services, or delivering projects, with risks to health and safety), or its cost structure and the revenue model (for example, sales-maximising incentives that put consumers at risk).
+    AR 6.
+    Impacts on consumers and/or end-users that originate in the strategy or business model can also bring material risks to the undertaking. For example, if the undertaking’s business model is premised on incentivising its sales force to sell high volumes of a product or service (for example, credit cards or pain medicine) at speed, and this results in large- scale harm to consumers, the undertaking may face lawsuits and reputational damage affecting its future business and credibility.
+back button: True
+fields:
+  - no label: S4_ESRS_2_SBM_3_1
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+--- 
+progress: 13
+question: |
+  Please describe the types of consumers and end-users subject to material impacts. 
+back button: True
+fields:
+  - no label: S4_ESRS_2_SBM_3_2
+    datatype: area
+    required: false
+--- 
+progress: 25
+question: |
+  Please share what type of consumers and end-users that are subject to material impacts by own operations or through value chain. 
+back button: True
+fields:
+  - no label: S4_ESRS_2_SBM_3_3
+    datatype: text
+    required: false
+--- 
+progress: 38
+question: |
+  Is there material negative impacts occurrence (consumers and end-users)? 
+back button: True
+fields:
+  - no label: S4_ESRS_2_SBM_3_4
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+--- 
+progress: 50
+question: |
+  Please describe activities that result in positive impacts and types of consumers and end-users that are positively affected or could be positively affected. 
+back button: True
+fields:
+  - no label: S4_ESRS_2_SBM_3_5
+    datatype: area
+    required: false
+--- 
+progress: 63
+question: |
+  Please describe material risks and opportunities arising from impacts and dependencies on consumers and end-users. 
+back button: True
+fields:
+  - no label: S4_ESRS_2_SBM_3_6
+    datatype: area
+    required: false
+--- 
+progress: 75
+question: |
+  Please disclose whether the undertaking has developed an understanding of how consumers and end-users with particular characteristics, those working in particular contexts, or those undertaking particular activities may be at greater risk of harm. 
+back button: True
+fields:
+  - no label: S4_ESRS_2_SBM_3_7
+    input type: radio
+    required: false
+    choices:
+      - Yes
+      - No
+      - Partly
+  - "Please disclose how the undertaking has developed an understanding of how consumers and end-users with particular characteristics, those working in particular contexts, or those undertaking particular activities may be at greater risk of harm.": S4_ESRS_2_SBM_3_8
+    required: false
+    datatype: area
+    js show if: |
+      ['Yes', 'Partly'].includes(val('S4_ESRS_2_SBM_3_7'))
+--- 
+progress: 88
+question: |
+  Please disclose which of material risks and opportunities arising from impacts and dependencies on consumers and end-users are impacts on specific groups. 
+help:
+  label: Help?
+  heading: <BR><h6>Explanation</h6>
+  content: |
+    AR 8.
+    With regard to paragraph 12, the risks could arise because of the undertaking’s dependency on consumers and/or end-users where low likelihood but high impact events may trigger financial effects, for example, where a global pandemic leads to severe impacts on certain consumers’ livelihoods resulting in major changes in patterns of consumption.
+back button: True
+fields:
+  - no label: S4_ESRS_2_SBM_3_9
+    datatype: area
+    required: false
+---
+progress: 0
+back button: True
+question: |
+  Please enter the name of the organisation you represent.
+fields:
+  - Organisation name: external_organisation_name
+    required: false
+
+---
+#! Response report before submission
+progress: 100
+field: final_screen
+back button: True
+question: |
+  Congratulations!
+subquestion: |
+  All questions have been addressed. Press the submit button below to send in your answers.
+continue button label: Submit answers!
+
+---
+#! Response report before submission
+event: error_screen
+prevent going back: True
+question: |
+  Something went wrong when submitting your answers. 
+subquestion: |  
+  Please try again or contact <a href="mailto:info@beyondcsrd.se">info@beyondcsrd.se</a> for help.
+under: |
+  Details: ${ response_content.decode() }
+buttons:
+  Exit: exit
+
+---
+
+event: require_login_screen
+question: |
+  Oops! You have been logged out. Please login again.
+subquestion: |
+  ${ action_button_html(login_url, size='md', color='primary', label='Login', new_window=False) }
+
+---
+
+event: invalid_token_screen
+question: |
+  Your survey token is invalid. Please contact the administrator to request a new url. 
+subquestion: |
+  ${ action_button_html(login_url, size='md', color='primary', label='Login', new_window=False) }
+
+---

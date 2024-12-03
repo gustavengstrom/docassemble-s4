@@ -6,7 +6,7 @@ metadata:
   show login: False
   description: |
     The objective of this Standard is to specify disclosure requirements which will enable users of the sustainability statement to understand material impacts on consumers and endusers connected with the undertaking’s own operations and value chain, including through its products or services, as well as through its business relationships, and its related material risks and opportunities. If unsure, leave blank. 
-  revision_date: 2024-11-25
+  revision_date: 2024-12-03
 ---
 modules:
   - .post
