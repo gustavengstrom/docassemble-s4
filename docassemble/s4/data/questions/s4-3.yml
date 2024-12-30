@@ -6,7 +6,7 @@ metadata:
   show login: False
   description: |
     The undertaking shall describe the processes it has in place to provide for or cooperate in the remediation of negative impacts on consumers and end-users that the undertaking is connected with, as well as channels available to consumers and end-users to raise concerns and have them addressed. All questions marked with * are voluntary. If unsure, leave blank. 
-  revision_date: 2024-12-03
+  revision_date: 2024-12-30
 ---
 modules:
   - .post
@@ -31,71 +31,94 @@ subquestion: |
 
   To get started, press **Continue**.
 ---
+reset:
+  - validate_status
+---
 mandatory: True
 code: |
   multi_user = True
   guest_member = None
 
-  # Get query params
-  board_id = url_args.get("board_id", "")
-  survey_id = url_args.get("survey_id", "")
+  # If not local browser session (device_local) has a token attribute then we look if it has been submitted as a query param
+  # This works together with reset validate_status to ensure that every refresh and browser start token validity is checked
+  if not hasattr(device_local, 'token'):
+    device_local.token = url_args.get("token", "token_arg_not_found")
+  # if "token" in url_args:
+  #   del url_args["token"]
+
   django_hostname = os.environ.get("DJANGOHOSTNAME")
-  redirect_url = f"https://{django_hostname}/pages/{board_id}/{survey_id}/completed/?submitted=1"
   login_url = f"https://{django_hostname}/accounts/login/"
 
   intro_screen
-  validate_status, validate_content = validate_session({"board_id": board_id, "survey_id": survey_id})
+  validate_status, validate_content = validate_session(device_local.token)
   if validate_status != 200:
      invalid_token_screen
   else:
     session_info = json.loads(validate_content)
+    board_id = session_info.get("board_id", "")
+    survey_id = session_info.get("survey_id", "")
     guest_member = session_info.get("guest_member")
     external = session_info.get("external")
-    if guest_member:
-      redirect_url = "https://www.beyondcsrd.se"
-
-  # This is needed so we can filter active interviews on board_id
-  session_tags().add(board_id)
-  session_tags().add(board_id+"__"+survey_id)
+    include_question_ids = session_info.get("include_question_ids")
+    
+  if guest_member:
+    redirect_url = "https://www.beyondcsrd.se"
+  else:
+    redirect_url = f"https://{django_hostname}/pages/{board_id}/{survey_id}/completed/?submitted=1"
 
   if external:
     external_organisation_name
   else:
     external_organisation_name = None
 
+  question_ids = ["S4_3_1", "S4_3_2", "S4_3_3", "S4_3_4", "S4_3_5", "S4_3_6", "S4_3_7", "S4_3_8", "S4_3_9", "S4_3_10", "S4_3_11", "S4_3_12", "S4_3_13", "S4_3_14", "S4_3_15", "S4_3_16", "S4_3_17", "S4_3_18"]
+
+  if include_question_ids: 
+    for question_id in question_ids:
+        if not question_id in include_question_ids:
+          define(question_id, "")
+          
+  else:
+    include_question_ids = question_ids
+    
+
+  # This is needed so we can filter active interviews on board_id
+  session_tags().add(board_id)
+  session_tags().add(board_id+"__"+survey_id)
+
   survey_data = []
-  survey_data.append({'name': 'Please disclose the general approach to and processes for providing or contributing to remedy where undertaking has identified that it is connected with a material negative impact on consumers and end-users.', 'value': S4_3_1, 'id': 'S4_3_1', 'answer_type': 'OPEN_LARGE'})
-  survey_data.append({'name': 'Does the undertaking have any specific channels in place for consumers and end-users to raise concerns or needs directly with undertaking and have them addressed?', 'value': S4_3_2 if S4_3_2!='None' else '', 'id': 'S4_3_2', 'answer_type': 'Yes/No/Partly'})
+  survey_data.append({'name': 'Please disclose the general approach to and processes for providing or contributing to remedy where undertaking has identified that it is connected with a material negative impact on consumers and end-users.', 'value': S4_3_1, 'id': 'S4_3_1', 'answer_type': 'OPEN_LARGE', 'included': 'S4_3_1' in include_question_ids})
+  survey_data.append({'name': 'Does the undertaking have any specific channels in place for consumers and end-users to raise concerns or needs directly with undertaking and have them addressed?', 'value': S4_3_2 if S4_3_2!='None' else '', 'id': 'S4_3_2', 'answer_type': 'Yes/No/Partly', 'included': 'S4_3_2' in include_question_ids})
   if not defined('S4_3_3'):
     define('S4_3_3', '_n/a_')
-  survey_data.append({'name': 'Please share a statement in case the undertaking has not adopted a general process to engage with consumers and end-users.', 'value': S4_3_3, 'id': 'S4_3_3', 'answer_type': 'OPEN', 'condition': 'S4_3_2', 'condition_criteria': 'No'})
+  survey_data.append({'name': 'Please share a statement in case the undertaking has not adopted a general process to engage with consumers and end-users.', 'value': S4_3_3, 'id': 'S4_3_3', 'answer_type': 'OPEN', 'condition': 'S4_3_2', 'condition_criteria': 'No', 'included': 'S4_3_3' in include_question_ids})
   if not defined('S4_3_4'):
     define('S4_3_4', '_n/a_')
-  survey_data.append({'name': 'Disclose the timeframe for channel or processes for raising concerns to be in place in case the undertaking has not adopted a general process for engagement.*', 'value': S4_3_4, 'id': 'S4_3_4', 'answer_type': 'OPEN', 'condition': 'S4_3_2', 'condition_criteria': 'No'})
+  survey_data.append({'name': 'Disclose the timeframe for channel or processes for raising concerns to be in place in case the undertaking has not adopted a general process for engagement.*', 'value': S4_3_4, 'id': 'S4_3_4', 'answer_type': 'OPEN', 'condition': 'S4_3_2', 'condition_criteria': 'No', 'included': 'S4_3_4' in include_question_ids})
   if not defined('S4_3_5'):
     define('S4_3_5', '_n/a_')
-  survey_data.append({'name': 'Please disclose the channels in place for consumers and end-users to raise concerns or needs directly with undertaking and have them addressed.', 'value': S4_3_5, 'id': 'S4_3_5', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_3_2', 'condition_criteria': 'Yes/Partly'})
-  survey_data.append({'name': 'Does the undertaking have any processes through which the undertaking supports or requires availability of channels?', 'value': S4_3_6 if S4_3_6!='None' else '', 'id': 'S4_3_6', 'answer_type': 'Yes/No/Partly'})
+  survey_data.append({'name': 'Please disclose the channels in place for consumers and end-users to raise concerns or needs directly with undertaking and have them addressed.', 'value': S4_3_5, 'id': 'S4_3_5', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_3_2', 'condition_criteria': 'Yes/Partly', 'included': 'S4_3_5' in include_question_ids})
+  survey_data.append({'name': 'Does the undertaking have any processes through which the undertaking supports or requires availability of channels?', 'value': S4_3_6 if S4_3_6!='None' else '', 'id': 'S4_3_6', 'answer_type': 'Yes/No/Partly', 'included': 'S4_3_6' in include_question_ids})
   if not defined('S4_3_7'):
     define('S4_3_7', '_n/a_')
-  survey_data.append({'name': 'Please disclose the processes through which the undertaking supports or requires availability of channels.', 'value': S4_3_7, 'id': 'S4_3_7', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_3_6', 'condition_criteria': 'Yes/Partly'})
-  survey_data.append({'name': 'Are issues raised and addressed, tracked and monitored and effectiveness of channels is ensured?', 'value': S4_3_8 if S4_3_8!='None' else '', 'id': 'S4_3_8', 'answer_type': 'Yes/No/Partly'})
+  survey_data.append({'name': 'Please disclose the processes through which the undertaking supports or requires availability of channels.', 'value': S4_3_7, 'id': 'S4_3_7', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_3_6', 'condition_criteria': 'Yes/Partly', 'included': 'S4_3_7' in include_question_ids})
+  survey_data.append({'name': 'Are issues raised and addressed, tracked and monitored and effectiveness of channels is ensured?', 'value': S4_3_8 if S4_3_8!='None' else '', 'id': 'S4_3_8', 'answer_type': 'Yes/No/Partly', 'included': 'S4_3_8' in include_question_ids})
   if not defined('S4_3_9'):
     define('S4_3_9', '_n/a_')
-  survey_data.append({'name': 'Please disclose how they are tracked and monitored and how effectiveness of channels is ensured.', 'value': S4_3_9, 'id': 'S4_3_9', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_3_8', 'condition_criteria': 'Yes/Partly'})
-  survey_data.append({'name': 'Does the undertaking assess that consumers and end-users are aware of and trust structures or processes as a way to raise their concerns or needs and have them addressed?', 'value': S4_3_10 if S4_3_10!='None' else '', 'id': 'S4_3_10', 'answer_type': 'Yes/No/Partly'})
+  survey_data.append({'name': 'Please disclose how they are tracked and monitored and how effectiveness of channels is ensured.', 'value': S4_3_9, 'id': 'S4_3_9', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_3_8', 'condition_criteria': 'Yes/Partly', 'included': 'S4_3_9' in include_question_ids})
+  survey_data.append({'name': 'Does the undertaking assess that consumers and end-users are aware of and trust structures or processes as a way to raise their concerns or needs and have them addressed?', 'value': S4_3_10 if S4_3_10!='None' else '', 'id': 'S4_3_10', 'answer_type': 'Yes/No/Partly', 'included': 'S4_3_10' in include_question_ids})
   if not defined('S4_3_11'):
     define('S4_3_11', '_n/a_')
-  survey_data.append({'name': 'Please describe how the undertaking assess that affected communities are aware of and trust structures or processes as a way to raise their concerns or needs and have them addressed.', 'value': S4_3_11, 'id': 'S4_3_11', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_3_10', 'condition_criteria': 'Yes/Partly'})
-  survey_data.append({'name': 'Are policies regarding protection against retaliation for individuals that use channels to raise concerns or needs in place?', 'value': S4_3_12 if S4_3_12!='None' else '', 'id': 'S4_3_12', 'answer_type': 'Yes/No/Partly'})
-  survey_data.append({'name': 'Are affected consumers and end-users able to access channels at level of undertaking they are affected by?*', 'value': S4_3_13 if S4_3_13!='None' else '', 'id': 'S4_3_13', 'answer_type': 'Yes/No/Partly'})
+  survey_data.append({'name': 'Please describe how the undertaking assess that affected communities are aware of and trust structures or processes as a way to raise their concerns or needs and have them addressed.', 'value': S4_3_11, 'id': 'S4_3_11', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_3_10', 'condition_criteria': 'Yes/Partly', 'included': 'S4_3_11' in include_question_ids})
+  survey_data.append({'name': 'Are policies regarding protection against retaliation for individuals that use channels to raise concerns or needs in place?', 'value': S4_3_12 if S4_3_12!='None' else '', 'id': 'S4_3_12', 'answer_type': 'Yes/No/Partly', 'included': 'S4_3_12' in include_question_ids})
+  survey_data.append({'name': 'Are affected consumers and end-users able to access channels at level of undertaking they are affected by?*', 'value': S4_3_13 if S4_3_13!='None' else '', 'id': 'S4_3_13', 'answer_type': 'Yes/No/Partly', 'included': 'S4_3_13' in include_question_ids})
   if not defined('S4_3_14'):
     define('S4_3_14', '_n/a_')
-  survey_data.append({'name': 'Please explain how affected consumers and end-users are able to access channels at level of undertaking they are affected by*.', 'value': S4_3_14, 'id': 'S4_3_14', 'answer_type': 'OPEN', 'condition': 'S4_3_13', 'condition_criteria': 'Yes/Partly'})
-  survey_data.append({'name': 'Are third-party mechanisms accessible to consumers and end-users?*', 'value': S4_3_15 if S4_3_15!='None' else '', 'id': 'S4_3_15', 'answer_type': 'Yes/No/Partly'})
-  survey_data.append({'name': 'Are grievances treated confidentially and with respect to rights of privacy and data protection?*', 'value': S4_3_16 if S4_3_16!='None' else '', 'id': 'S4_3_16', 'answer_type': 'Yes/No/Partly'})
-  survey_data.append({'name': 'Are consumers and end-users allowed to use anonymous channels to raise concerns or needs?*', 'value': S4_3_17 if S4_3_17!='None' else '', 'id': 'S4_3_17', 'answer_type': 'Yes/No/Partly'})
-  survey_data.append({'name': 'Please state the number of complaints received from consumers and/or end users during the reporting period.*', 'value': S4_3_18, 'id': 'S4_3_18', 'answer_type': 'INTEGER'})
+  survey_data.append({'name': 'Please explain how affected consumers and end-users are able to access channels at level of undertaking they are affected by*.', 'value': S4_3_14, 'id': 'S4_3_14', 'answer_type': 'OPEN', 'condition': 'S4_3_13', 'condition_criteria': 'Yes/Partly', 'included': 'S4_3_14' in include_question_ids})
+  survey_data.append({'name': 'Are third-party mechanisms accessible to consumers and end-users?*', 'value': S4_3_15 if S4_3_15!='None' else '', 'id': 'S4_3_15', 'answer_type': 'Yes/No/Partly', 'included': 'S4_3_15' in include_question_ids})
+  survey_data.append({'name': 'Are grievances treated confidentially and with respect to rights of privacy and data protection?*', 'value': S4_3_16 if S4_3_16!='None' else '', 'id': 'S4_3_16', 'answer_type': 'Yes/No/Partly', 'included': 'S4_3_16' in include_question_ids})
+  survey_data.append({'name': 'Are consumers and end-users allowed to use anonymous channels to raise concerns or needs?*', 'value': S4_3_17 if S4_3_17!='None' else '', 'id': 'S4_3_17', 'answer_type': 'Yes/No/Partly', 'included': 'S4_3_17' in include_question_ids})
+  survey_data.append({'name': 'Please state the number of complaints received from consumers and/or end users during the reporting period.*', 'value': S4_3_18, 'id': 'S4_3_18', 'answer_type': 'INTEGER', 'included': 'S4_3_18' in include_question_ids})
 
   card_title = 's4-3'
   card_description = ''
@@ -407,7 +430,5 @@ subquestion: |
 event: invalid_token_screen
 question: |
   Your survey token is invalid. Please contact the administrator to request a new url. 
-subquestion: |
-  ${ action_button_html(login_url, size='md', color='primary', label='Login', new_window=False) }
 
 ---

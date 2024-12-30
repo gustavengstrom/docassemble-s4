@@ -32,10 +32,11 @@ def get_ticket_aux_data(ticket_id: str):
         return 400
 
 
-def validate_session(data):
-    # parsed_url = urlparse(interview_url(style="short", local=True))
-    # session_id = parse_qs(parsed_url.query)["session"][0]
+def validate_session(token):
+
     django_hostname = os.environ["DJANGOHOSTNAME"]
+    data = {}
+    data["token"] = token
     data["session_id"] = get_uid()
     data["survey_url"] = interview_url(style="short", local=True).split("?")[0]
     try:

@@ -5,11 +5,8 @@ metadata:
     Social 4&#58;5 Consumers and end-users&#58; Targets related to managing material negative impacts, advancing positive impacts, and managing material risks and opportunities
   show login: False
   description: |
-    The undertaking shall disclose the time-bound and outcome-oriented targets it may have set related to&#58;
-    (a) reducing negative impacts on affected communities; and/or
-    (b) advancing positive impacts on affected communities; and/or
-    (c) managing material risks and opportunities related to affected communities. All questions marked with * are voluntary. If unsure, leave blank. 
-  revision_date: 2024-12-03
+    The objective of this Disclosure Requirement is to enable an understanding of the extent to which the undertaking is using time-bound and outcome-oriented targets to drive and measure progress in addressing material negative impacts, and/or advancing positive impacts on consumers and/or end-users, and/or in managing material risks and opportunities related to consumers and/or end-users .All questions marked with * are voluntary. If unsure, leave blank. 
+  revision_date: 2024-12-30
 ---
 modules:
   - .post
@@ -30,65 +27,85 @@ field: intro_screen
 question: |
   Social 4&#58;5 Consumers and end-users&#58; Targets related to managing material negative impacts, advancing positive impacts, and managing material risks and opportunities
 subquestion: |
-  The undertaking shall disclose the time-bound and outcome-oriented targets it may have set related to&#58;
-    (a) reducing negative impacts on affected communities; and/or
-    (b) advancing positive impacts on affected communities; and/or
-    (c) managing material risks and opportunities related to affected communities. All questions marked with * are voluntary. If unsure, leave blank.
+  The objective of this Disclosure Requirement is to enable an understanding of the extent to which the undertaking is using time-bound and outcome-oriented targets to drive and measure progress in addressing material negative impacts, and/or advancing positive impacts on consumers and/or end-users, and/or in managing material risks and opportunities related to consumers and/or end-users .All questions marked with * are voluntary. If unsure, leave blank.
 
   To get started, press **Continue**.
+---
+reset:
+  - validate_status
 ---
 mandatory: True
 code: |
   multi_user = True
   guest_member = None
 
-  # Get query params
-  board_id = url_args.get("board_id", "")
-  survey_id = url_args.get("survey_id", "")
+  # If not local browser session (device_local) has a token attribute then we look if it has been submitted as a query param
+  # This works together with reset validate_status to ensure that every refresh and browser start token validity is checked
+  if not hasattr(device_local, 'token'):
+    device_local.token = url_args.get("token", "token_arg_not_found")
+  # if "token" in url_args:
+  #   del url_args["token"]
+
   django_hostname = os.environ.get("DJANGOHOSTNAME")
-  redirect_url = f"https://{django_hostname}/pages/{board_id}/{survey_id}/completed/?submitted=1"
   login_url = f"https://{django_hostname}/accounts/login/"
 
   intro_screen
-  validate_status, validate_content = validate_session({"board_id": board_id, "survey_id": survey_id})
+  validate_status, validate_content = validate_session(device_local.token)
   if validate_status != 200:
      invalid_token_screen
   else:
     session_info = json.loads(validate_content)
+    board_id = session_info.get("board_id", "")
+    survey_id = session_info.get("survey_id", "")
     guest_member = session_info.get("guest_member")
     external = session_info.get("external")
-    if guest_member:
-      redirect_url = "https://www.beyondcsrd.se"
-
-  # This is needed so we can filter active interviews on board_id
-  session_tags().add(board_id)
-  session_tags().add(board_id+"__"+survey_id)
+    include_question_ids = session_info.get("include_question_ids")
+    
+  if guest_member:
+    redirect_url = "https://www.beyondcsrd.se"
+  else:
+    redirect_url = f"https://{django_hostname}/pages/{board_id}/{survey_id}/completed/?submitted=1"
 
   if external:
     external_organisation_name
   else:
     external_organisation_name = None
 
+  question_ids = ["S4_5_1", "S4_5_2", "S4_5_3", "S4_5_4", "S4_5_5", "S4_5_6", "S4_5_7", "S4_5_9", "S4_5_10", "S4_5_11", "S4_5_12", "S4_5_13", "S4_5_14", "S4_5_15", "S4_5_16", "S4_5_17", "S4_5_18", "S4_5_19", "S4_5_20", "S4_5_21", "S4_5_22", "S4_5_23", "S4_5_24", "S4_5_25", "S4_5_26", "S4_5_27", "S4_5_28", "S4_5_29", "S4_5_30", "S4_5_31", "S4_5_32"]
+
+  if include_question_ids: 
+    for question_id in question_ids:
+        if not question_id in include_question_ids:
+          define(question_id, "")
+          
+  else:
+    include_question_ids = question_ids
+    
+
+  # This is needed so we can filter active interviews on board_id
+  session_tags().add(board_id)
+  session_tags().add(board_id+"__"+survey_id)
+
   survey_data = []
-  survey_data.append({'name': 'Has the undertaking set measurable targets to manage material impacts, risks and opportunities related to consumers and end-users?', 'value': S4_5_1 if S4_5_1!='None' else '', 'id': 'S4_5_1', 'answer_type': 'Yes/No/Partly', 'dynamic_header':'Please elaborate on the questions below for each target.', 'dynamic_condition_criteria': 'Yes/Partly'})
+  survey_data.append({'name': 'Has the undertaking set measurable targets to manage material impacts, risks and opportunities related to consumers and end-users?', 'value': S4_5_1 if S4_5_1!='None' else '', 'id': 'S4_5_1', 'answer_type': 'Yes/No/Partly', 'included': 'S4_5_1' in include_question_ids})
   if not defined('S4_5_2'):
     define('S4_5_2', '_n/a_')
-  survey_data.append({'name': 'Please disclose the timeframe for setting of measurable outcome-oriented targets.*', 'value': S4_5_2, 'id': 'S4_5_2', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_1', 'condition_criteria': 'No'})
+  survey_data.append({'name': 'Please disclose the timeframe for setting of measurable outcome-oriented targets.*', 'value': S4_5_2, 'id': 'S4_5_2', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_1', 'condition_criteria': 'No', 'included': 'S4_5_2' in include_question_ids})
   if not defined('S4_5_3'):
     define('S4_5_3', '_n/a_')
-  survey_data.append({'name': 'Please describe the reasons why there are no plans to set measurable outcome-oriented targets.*', 'value': S4_5_3, 'id': 'S4_5_3', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_1', 'condition_criteria': 'No'})
+  survey_data.append({'name': 'Please describe the reasons why there are no plans to set measurable outcome-oriented targets.*', 'value': S4_5_3, 'id': 'S4_5_3', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_1', 'condition_criteria': 'No', 'included': 'S4_5_3' in include_question_ids})
   if not defined('S4_5_4'):
     define('S4_5_4', '_n/a_')
-  survey_data.append({'name': 'Is effectiveness of policies and actions tracked in relation to material sustainability-related impact, risk and opportunity?', 'value': S4_5_4, 'id': 'S4_5_4', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_1', 'condition_criteria': 'No'})
+  survey_data.append({'name': 'Is effectiveness of policies and actions tracked in relation to material sustainability-related impact, risk and opportunity?', 'value': S4_5_4, 'id': 'S4_5_4', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_1', 'condition_criteria': 'No', 'included': 'S4_5_4' in include_question_ids})
   if not defined('S4_5_5'):
     define('S4_5_5', '_n/a_')
-  survey_data.append({'name': 'Description of processes through which effectiveness of policies and actions is tracked in relation to material sustainability-related impact, risk and opportunity', 'value': S4_5_5, 'id': 'S4_5_5', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_1', 'condition_criteria': 'No'})
+  survey_data.append({'name': 'Description of processes through which effectiveness of policies and actions is tracked in relation to material sustainability-related impact, risk and opportunity', 'value': S4_5_5, 'id': 'S4_5_5', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_1', 'condition_criteria': 'No', 'included': 'S4_5_5' in include_question_ids})
   if not defined('S4_5_6'):
     define('S4_5_6', '_n/a_')
-  survey_data.append({'name': 'Description of defined level of ambition to be achieved and of any qualitative or quantitative indicators used to evaluate progress.', 'value': S4_5_6, 'id': 'S4_5_6', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_1', 'condition_criteria': 'No'})
+  survey_data.append({'name': 'Description of defined level of ambition to be achieved and of any qualitative or quantitative indicators used to evaluate progress.', 'value': S4_5_6, 'id': 'S4_5_6', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_1', 'condition_criteria': 'No', 'included': 'S4_5_6' in include_question_ids})
   if not defined('S4_5_7'):
     define('S4_5_7', '_n/a_')
-  survey_data.append({'name': 'Base year from which progress is measured.', 'value': S4_5_7, 'id': 'S4_5_7', 'answer_type': 'YEAR', 'condition': 'S4_5_1', 'condition_criteria': 'No'})
+  survey_data.append({'name': 'Base year from which progress is measured.', 'value': S4_5_7, 'id': 'S4_5_7', 'answer_type': 'YEAR', 'condition': 'S4_5_1', 'condition_criteria': 'No', 'included': 'S4_5_7' in include_question_ids})
   if S4_5_1 in ['Yes', 'Partly']:
     S4_5_8.gather()
   else:
@@ -99,66 +116,66 @@ code: |
   for index, indicator in enumerate(S4_5_8):
     if not indicator.attribute_defined('S4_5_9'):
       indicator.S4_5_9 = '_n/a_'
-    survey_data.append({'name': 'Please provide a short description of the target.', 'value': indicator.S4_5_9, 'id': f'S4_5_9__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_5_1'})
+    survey_data.append({'name': 'Please provide a short description of the target.', 'value': indicator.S4_5_9, 'id': f'S4_5_9__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'included': 'S4_5_9' in include_question_ids, 'dynamic_group_id': 'S4_5_8', 'dynamic_condition': 'S4_5_1', 'dynamic_condition_criteria': 'Yes/Partly', 'dynamic_header': 'Please elaborate on the questions below for each target.'})
     if not indicator.attribute_defined('S4_5_10'):
       indicator.S4_5_10 = '_n/a_'
-    survey_data.append({'name': 'Please describe the relationship with policy objectives.', 'value': indicator.S4_5_10, 'id': f'S4_5_10__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_5_1'})
+    survey_data.append({'name': 'Please describe the relationship with policy objectives.', 'value': indicator.S4_5_10, 'id': f'S4_5_10__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'included': 'S4_5_10' in include_question_ids, 'dynamic_group_id': 'S4_5_8', 'dynamic_condition': 'S4_5_1', 'dynamic_condition_criteria': 'Yes/Partly', 'dynamic_header': 'Please elaborate on the questions below for each target.'})
     if not indicator.attribute_defined('S4_5_11'):
       indicator.S4_5_11 = '_n/a_'
-    survey_data.append({'name': 'Please describe the measurable target.', 'value': indicator.S4_5_11, 'id': f'S4_5_11__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_5_1'})
+    survey_data.append({'name': 'Please describe the measurable target.', 'value': indicator.S4_5_11, 'id': f'S4_5_11__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'included': 'S4_5_11' in include_question_ids, 'dynamic_group_id': 'S4_5_8', 'dynamic_condition': 'S4_5_1', 'dynamic_condition_criteria': 'Yes/Partly', 'dynamic_header': 'Please elaborate on the questions below for each target.'})
     if not indicator.attribute_defined('S4_5_12'):
       indicator.S4_5_12 = '_n/a_'
-    survey_data.append({'name': 'Please describe the nature of target.', 'value': indicator.S4_5_12, 'id': f'S4_5_12__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_5_1'})
+    survey_data.append({'name': 'Please describe the nature of target.', 'value': indicator.S4_5_12, 'id': f'S4_5_12__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'included': 'S4_5_12' in include_question_ids, 'dynamic_group_id': 'S4_5_8', 'dynamic_condition': 'S4_5_1', 'dynamic_condition_criteria': 'Yes/Partly', 'dynamic_header': 'Please elaborate on the questions below for each target.'})
     if not indicator.attribute_defined('S4_5_13'):
       indicator.S4_5_13 = '_n/a_'
-    survey_data.append({'name': 'Please describe the scope of target.', 'value': indicator.S4_5_13, 'id': f'S4_5_13__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_5_1'})
+    survey_data.append({'name': 'Please describe the scope of target.', 'value': indicator.S4_5_13, 'id': f'S4_5_13__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'included': 'S4_5_13' in include_question_ids, 'dynamic_group_id': 'S4_5_8', 'dynamic_condition': 'S4_5_1', 'dynamic_condition_criteria': 'Yes/Partly', 'dynamic_header': 'Please elaborate on the questions below for each target.'})
     if not indicator.attribute_defined('S4_5_14'):
       indicator.S4_5_14 = '_n/a_'
-    survey_data.append({'name': 'Please describe the baseline value.', 'value': indicator.S4_5_14, 'id': f'S4_5_14__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'INTEGER', 'condition': 'S4_5_1'})
+    survey_data.append({'name': 'Please describe the baseline value.', 'value': indicator.S4_5_14, 'id': f'S4_5_14__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'INTEGER', 'included': 'S4_5_14' in include_question_ids, 'dynamic_group_id': 'S4_5_8', 'dynamic_condition': 'S4_5_1', 'dynamic_condition_criteria': 'Yes/Partly', 'dynamic_header': 'Please elaborate on the questions below for each target.'})
     if not indicator.attribute_defined('S4_5_15'):
       indicator.S4_5_15 = '_n/a_'
-    survey_data.append({'name': 'Please describe the baseline year.', 'value': indicator.S4_5_15, 'id': f'S4_5_15__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'YEAR', 'condition': 'S4_5_1'})
+    survey_data.append({'name': 'Please describe the baseline year.', 'value': indicator.S4_5_15, 'id': f'S4_5_15__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'YEAR', 'included': 'S4_5_15' in include_question_ids, 'dynamic_group_id': 'S4_5_8', 'dynamic_condition': 'S4_5_1', 'dynamic_condition_criteria': 'Yes/Partly', 'dynamic_header': 'Please elaborate on the questions below for each target.'})
     if not indicator.attribute_defined('S4_5_16'):
       indicator.S4_5_16 = '_n/a_'
-    survey_data.append({'name': 'Please describe the period to which target applies.', 'value': indicator.S4_5_16, 'id': f'S4_5_16__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_5_1'})
+    survey_data.append({'name': 'Please describe the period to which target applies.', 'value': indicator.S4_5_16, 'id': f'S4_5_16__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'included': 'S4_5_16' in include_question_ids, 'dynamic_group_id': 'S4_5_8', 'dynamic_condition': 'S4_5_1', 'dynamic_condition_criteria': 'Yes/Partly', 'dynamic_header': 'Please elaborate on the questions below for each target.'})
     if not indicator.attribute_defined('S4_5_17'):
       indicator.S4_5_17 = '_n/a_'
-    survey_data.append({'name': 'Please describe the indication of milestones or interim targets.', 'value': indicator.S4_5_17, 'id': f'S4_5_17__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_5_1'})
+    survey_data.append({'name': 'Please describe the indication of milestones or interim targets.', 'value': indicator.S4_5_17, 'id': f'S4_5_17__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'included': 'S4_5_17' in include_question_ids, 'dynamic_group_id': 'S4_5_8', 'dynamic_condition': 'S4_5_1', 'dynamic_condition_criteria': 'Yes/Partly', 'dynamic_header': 'Please elaborate on the questions below for each target.'})
     if not indicator.attribute_defined('S4_5_18'):
       indicator.S4_5_18 = '_n/a_'
-    survey_data.append({'name': 'Please describe the methodologies and significant assumptions used to define target.', 'value': indicator.S4_5_18, 'id': f'S4_5_18__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_5_1'})
+    survey_data.append({'name': 'Please describe the methodologies and significant assumptions used to define target.', 'value': indicator.S4_5_18, 'id': f'S4_5_18__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'included': 'S4_5_18' in include_question_ids, 'dynamic_group_id': 'S4_5_8', 'dynamic_condition': 'S4_5_1', 'dynamic_condition_criteria': 'Yes/Partly', 'dynamic_header': 'Please elaborate on the questions below for each target.'})
     if not indicator.attribute_defined('S4_5_19'):
       indicator.S4_5_19 = '_n/a_'
-    survey_data.append({'name': 'Have stakeholders been involved in target setting?', 'value': indicator.S4_5_19 if indicator.S4_5_19!='None' else '_n/a_', 'id': f'S4_5_19__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'Yes/No/Partly', 'condition': 'S4_5_1'})
+    survey_data.append({'name': 'Have stakeholders been involved in target setting?', 'value': indicator.S4_5_19 if indicator.S4_5_19!='None' else '_n/a_', 'id': f'S4_5_19__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'Yes/No/Partly', 'included': 'S4_5_19' in include_question_ids, 'dynamic_group_id': 'S4_5_8', 'dynamic_condition': 'S4_5_1', 'dynamic_condition_criteria': 'Yes/Partly', 'dynamic_header': 'Please elaborate on the questions below for each target.'})
     if not indicator.attribute_defined('S4_5_20'):
       indicator.S4_5_20 = '_n/a_'
-    survey_data.append({'name': 'Please explain how stakeholders have been involved in target setting.', 'value': indicator.S4_5_20, 'id': f'S4_5_20__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_5_1'})
+    survey_data.append({'name': 'Please explain how stakeholders have been involved in target setting.', 'value': indicator.S4_5_20, 'id': f'S4_5_20__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'included': 'S4_5_20' in include_question_ids, 'dynamic_group_id': 'S4_5_8', 'dynamic_condition': 'S4_5_1', 'dynamic_condition_criteria': 'Yes/Partly', 'dynamic_header': 'Please elaborate on the questions below for each target.'})
     if not indicator.attribute_defined('S4_5_21'):
       indicator.S4_5_21 = '_n/a_'
-    survey_data.append({'name': 'Please describe any changes in target and corresponding metrics or underlying measurement methodologies, significant assumptions, limitations, sources and adopted processes to collect data.', 'value': indicator.S4_5_21, 'id': f'S4_5_21__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_5_1'})
+    survey_data.append({'name': 'Please describe any changes in target and corresponding metrics or underlying measurement methodologies, significant assumptions, limitations, sources and adopted processes to collect data.', 'value': indicator.S4_5_21, 'id': f'S4_5_21__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'included': 'S4_5_21' in include_question_ids, 'dynamic_group_id': 'S4_5_8', 'dynamic_condition': 'S4_5_1', 'dynamic_condition_criteria': 'Yes/Partly', 'dynamic_header': 'Please elaborate on the questions below for each target.'})
     if not indicator.attribute_defined('S4_5_22'):
       indicator.S4_5_22 = '_n/a_'
-    survey_data.append({'name': 'Description of performance against disclosed target.', 'value': indicator.S4_5_22, 'id': f'S4_5_22__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'S4_5_1'})
+    survey_data.append({'name': 'Description of performance against disclosed target.', 'value': indicator.S4_5_22, 'id': f'S4_5_22__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'included': 'S4_5_22' in include_question_ids, 'dynamic_group_id': 'S4_5_8', 'dynamic_condition': 'S4_5_1', 'dynamic_condition_criteria': 'Yes/Partly', 'dynamic_header': 'Please elaborate on the questions below for each target.'})
   if S4_5_1 not in ['Yes', 'Partly']:
     S4_5_8.clear()
-  survey_data.append({'name': 'Were consumers and end-users engaged directly in setting targets?', 'value': S4_5_23 if S4_5_23!='None' else '', 'id': 'S4_5_23', 'answer_type': 'Yes/No/Partly'})
+  survey_data.append({'name': 'Were consumers and end-users engaged directly in setting targets?', 'value': S4_5_23 if S4_5_23!='None' else '', 'id': 'S4_5_23', 'answer_type': 'Yes/No/Partly', 'included': 'S4_5_23' in include_question_ids})
   if not defined('S4_5_24'):
     define('S4_5_24', '_n/a_')
-  survey_data.append({'name': 'Please disclose how consumers and end-users are engaged directly in setting targets.', 'value': S4_5_24, 'id': 'S4_5_24', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_23', 'condition_criteria': 'Yes/Partly'})
-  survey_data.append({'name': 'Were consumers and end-users engaged directly in tracking performance against targets?', 'value': S4_5_25 if S4_5_25!='None' else '', 'id': 'S4_5_25', 'answer_type': 'Yes/No/Partly'})
+  survey_data.append({'name': 'Please disclose how consumers and end-users are engaged directly in setting targets.', 'value': S4_5_24, 'id': 'S4_5_24', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_23', 'condition_criteria': 'Yes/Partly', 'included': 'S4_5_24' in include_question_ids})
+  survey_data.append({'name': 'Were consumers and end-users engaged directly in tracking performance against targets?', 'value': S4_5_25 if S4_5_25!='None' else '', 'id': 'S4_5_25', 'answer_type': 'Yes/No/Partly', 'included': 'S4_5_25' in include_question_ids})
   if not defined('S4_5_26'):
     define('S4_5_26', '_n/a_')
-  survey_data.append({'name': 'Please disclose how consumers and end-users engaged directly in tracking performance against targets.', 'value': S4_5_26, 'id': 'S4_5_26', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_25', 'condition_criteria': 'Yes/Partly'})
-  survey_data.append({'name': 'Were consumers and end-users engaged directly in identifying lessons or improvements as result of undertaking’s performance?', 'value': S4_5_27 if S4_5_27!='None' else '', 'id': 'S4_5_27', 'answer_type': 'Yes/No/Partly'})
+  survey_data.append({'name': 'Please disclose how consumers and end-users engaged directly in tracking performance against targets.', 'value': S4_5_26, 'id': 'S4_5_26', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_25', 'condition_criteria': 'Yes/Partly', 'included': 'S4_5_26' in include_question_ids})
+  survey_data.append({'name': 'Were consumers and end-users engaged directly in identifying lessons or improvements as result of undertaking’s performance?', 'value': S4_5_27 if S4_5_27!='None' else '', 'id': 'S4_5_27', 'answer_type': 'Yes/No/Partly', 'included': 'S4_5_27' in include_question_ids})
   if not defined('S4_5_28'):
     define('S4_5_28', '_n/a_')
-  survey_data.append({'name': 'Please disclose how consumers and end-users engaged directly in identifying lessons or improvements as result of undertaking’s performance.', 'value': S4_5_28, 'id': 'S4_5_28', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_27', 'condition_criteria': 'Yes/Partly'})
-  survey_data.append({'name': 'Has the undertaking formulated intended outcomes to be achieved in lives of consumers and end-users?*', 'value': S4_5_29 if S4_5_29!='None' else '', 'id': 'S4_5_29', 'answer_type': 'Yes/No/Partly'})
+  survey_data.append({'name': 'Please disclose how consumers and end-users engaged directly in identifying lessons or improvements as result of undertaking’s performance.', 'value': S4_5_28, 'id': 'S4_5_28', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_27', 'condition_criteria': 'Yes/Partly', 'included': 'S4_5_28' in include_question_ids})
+  survey_data.append({'name': 'Has the undertaking formulated intended outcomes to be achieved in lives of consumers and end-users?*', 'value': S4_5_29 if S4_5_29!='None' else '', 'id': 'S4_5_29', 'answer_type': 'Yes/No/Partly', 'included': 'S4_5_29' in include_question_ids})
   if not defined('S4_5_30'):
     define('S4_5_30', '_n/a_')
-  survey_data.append({'name': 'Please describe the formulated intended outcomes to be achieved in lives of consumers and end-users.*', 'value': S4_5_30, 'id': 'S4_5_30', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_29', 'condition_criteria': 'Yes/Partly'})
-  survey_data.append({'name': 'Please share information about stability over time of target in terms of definitions and methodologies to enable comparability.*', 'value': S4_5_31, 'id': 'S4_5_31', 'answer_type': 'OPEN_LARGE'})
-  survey_data.append({'name': 'Disclose references to standards or commitments on which target is based.*', 'value': S4_5_32, 'id': 'S4_5_32', 'answer_type': 'OPEN_LARGE'})
+  survey_data.append({'name': 'Please describe the formulated intended outcomes to be achieved in lives of consumers and end-users.*', 'value': S4_5_30, 'id': 'S4_5_30', 'answer_type': 'OPEN_LARGE', 'condition': 'S4_5_29', 'condition_criteria': 'Yes/Partly', 'included': 'S4_5_30' in include_question_ids})
+  survey_data.append({'name': 'Please share information about stability over time of target in terms of definitions and methodologies to enable comparability.*', 'value': S4_5_31, 'id': 'S4_5_31', 'answer_type': 'OPEN_LARGE', 'included': 'S4_5_31' in include_question_ids})
+  survey_data.append({'name': 'Disclose references to standards or commitments on which target is based.*', 'value': S4_5_32, 'id': 'S4_5_32', 'answer_type': 'OPEN_LARGE', 'included': 'S4_5_32' in include_question_ids})
 
   card_title = 's4-5'
   card_description = ''
@@ -521,7 +538,5 @@ subquestion: |
 event: invalid_token_screen
 question: |
   Your survey token is invalid. Please contact the administrator to request a new url. 
-subquestion: |
-  ${ action_button_html(login_url, size='md', color='primary', label='Login', new_window=False) }
 
 ---

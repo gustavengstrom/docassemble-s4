@@ -6,7 +6,7 @@ metadata:
   show login: False
   description: |
     The objective of this Standard is to specify disclosure requirements which will enable users of the sustainability statement to understand material impacts on consumers and endusers connected with the undertaking’s own operations and value chain, including through its products or services, as well as through its business relationships, and its related material risks and opportunities. If unsure, leave blank. 
-  revision_date: 2024-12-03
+  revision_date: 2024-12-30
 ---
 modules:
   - .post
@@ -31,46 +31,69 @@ subquestion: |
 
   To get started, press **Continue**.
 ---
+reset:
+  - validate_status
+---
 mandatory: True
 code: |
   multi_user = True
   guest_member = None
 
-  # Get query params
-  board_id = url_args.get("board_id", "")
-  survey_id = url_args.get("survey_id", "")
+  # If not local browser session (device_local) has a token attribute then we look if it has been submitted as a query param
+  # This works together with reset validate_status to ensure that every refresh and browser start token validity is checked
+  if not hasattr(device_local, 'token'):
+    device_local.token = url_args.get("token", "token_arg_not_found")
+  # if "token" in url_args:
+  #   del url_args["token"]
+
   django_hostname = os.environ.get("DJANGOHOSTNAME")
-  redirect_url = f"https://{django_hostname}/pages/{board_id}/{survey_id}/completed/?submitted=1"
   login_url = f"https://{django_hostname}/accounts/login/"
 
   intro_screen
-  validate_status, validate_content = validate_session({"board_id": board_id, "survey_id": survey_id})
+  validate_status, validate_content = validate_session(device_local.token)
   if validate_status != 200:
      invalid_token_screen
   else:
     session_info = json.loads(validate_content)
+    board_id = session_info.get("board_id", "")
+    survey_id = session_info.get("survey_id", "")
     guest_member = session_info.get("guest_member")
     external = session_info.get("external")
-    if guest_member:
-      redirect_url = "https://www.beyondcsrd.se"
-
-  # This is needed so we can filter active interviews on board_id
-  session_tags().add(board_id)
-  session_tags().add(board_id+"__"+survey_id)
+    include_question_ids = session_info.get("include_question_ids")
+    
+  if guest_member:
+    redirect_url = "https://www.beyondcsrd.se"
+  else:
+    redirect_url = f"https://{django_hostname}/pages/{board_id}/{survey_id}/completed/?submitted=1"
 
   if external:
     external_organisation_name
   else:
     external_organisation_name = None
 
+  question_ids = ["ESRS_S4_General_1_1", "ESRS_S4_General_1_2", "ESRS_S4_General_1_3", "ESRS_S4_General_1_5", "ESRS_S4_General_1_6", "ESRS_S4_General_1_7", "ESRS_S4_General_1_8", "ESRS_S4_General_1_9"]
+
+  if include_question_ids: 
+    for question_id in question_ids:
+        if not question_id in include_question_ids:
+          define(question_id, "")
+          
+  else:
+    include_question_ids = question_ids
+    
+
+  # This is needed so we can filter active interviews on board_id
+  session_tags().add(board_id)
+  session_tags().add(board_id+"__"+survey_id)
+
   survey_data = []
-  survey_data.append({'name': 'Does the undertaking or group have more than 750 employees during the financial year?', 'value': ESRS_S4_General_1_1 if ESRS_S4_General_1_1!='None' else '', 'id': 'ESRS_S4_General_1_1', 'answer_type': 'Yes/No'})
+  survey_data.append({'name': 'Does the undertaking or group have more than 750 employees during the financial year?', 'value': ESRS_S4_General_1_1 if ESRS_S4_General_1_1!='None' else '', 'id': 'ESRS_S4_General_1_1', 'answer_type': 'Yes/No', 'included': 'ESRS_S4_General_1_1' in include_question_ids})
   if not defined('ESRS_S4_General_1_2'):
     define('ESRS_S4_General_1_2', '_n/a_')
-  survey_data.append({'name': 'Are the phasing-in exceptions applicable for the undertaking for the year of this reporting?', 'value': ESRS_S4_General_1_2 if ESRS_S4_General_1_2!='None' else '_n/a_', 'id': 'ESRS_S4_General_1_2', 'answer_type': 'Yes/No', 'condition': 'ESRS_S4_General_1_1', 'condition_criteria': 'No'})
+  survey_data.append({'name': 'Are the phasing-in exceptions applicable for the undertaking for the year of this reporting?', 'value': ESRS_S4_General_1_2 if ESRS_S4_General_1_2!='None' else '_n/a_', 'id': 'ESRS_S4_General_1_2', 'answer_type': 'Yes/No', 'condition': 'ESRS_S4_General_1_1', 'condition_criteria': 'No', 'included': 'ESRS_S4_General_1_2' in include_question_ids})
   if not defined('ESRS_S4_General_1_3'):
     define('ESRS_S4_General_1_3', '_n/a_')
-  survey_data.append({'name': 'Would the undertaking nevertheless want to disclose S4 in preparation for future reports?', 'value': ESRS_S4_General_1_3 if ESRS_S4_General_1_3!='None' else '_n/a_', 'id': 'ESRS_S4_General_1_3', 'answer_type': 'Yes/No', 'condition': 'ESRS_S4_General_1_2', 'condition_criteria': 'Yes', 'dynamic_header':'Please elaborate on the questions below for each material sustainability topic covered by ESRS S4 that has been assessed to be material as a result of the undertaking’s materiality assessment.', 'dynamic_condition_criteria': 'No'})
+  survey_data.append({'name': 'Would the undertaking nevertheless want to disclose S4 in preparation for future reports?', 'value': ESRS_S4_General_1_3 if ESRS_S4_General_1_3!='None' else '_n/a_', 'id': 'ESRS_S4_General_1_3', 'answer_type': 'Yes/No', 'condition': 'ESRS_S4_General_1_2', 'condition_criteria': 'Yes', 'included': 'ESRS_S4_General_1_3' in include_question_ids})
   if ESRS_S4_General_1_3 in ['No']:
     ESRS_S4_General_1_4.gather()
   else:
@@ -81,19 +104,19 @@ code: |
   for index, indicator in enumerate(ESRS_S4_General_1_4):
     if not indicator.attribute_defined('ESRS_S4_General_1_5'):
       indicator.ESRS_S4_General_1_5 = '_n/a_'
-    survey_data.append({'name': 'Please disclose the list of matters (i.e. topic, subtopic or sub-sub-topic) in AR 16 ESRS 1 Appendix A that are assessed to be material and briefly describe how the undertaking’s business model and strategy take account of the impacts of the undertaking related to those matters. The undertaking may identify the matter at the level of topic, subtopic or sub-sub-topic.', 'value': indicator.ESRS_S4_General_1_5, 'id': f'ESRS_S4_General_1_5__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN_LARGE', 'condition': 'ESRS_S4_General_1_3'})
+    survey_data.append({'name': 'Please disclose the list of matters (i.e. topic, subtopic or sub-sub-topic) in AR 16 ESRS 1 Appendix A that are assessed to be material and briefly describe how the undertaking’s business model and strategy take account of the impacts of the undertaking related to those matters. The undertaking may identify the matter at the level of topic, subtopic or sub-sub-topic.', 'value': indicator.ESRS_S4_General_1_5, 'id': f'ESRS_S4_General_1_5__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN_LARGE', 'included': 'ESRS_S4_General_1_5' in include_question_ids, 'dynamic_group_id': 'ESRS_S4_General_1_4', 'dynamic_condition': 'ESRS_S4_General_1_3', 'dynamic_condition_criteria': 'No', 'dynamic_header': 'Please elaborate on the questions below for each material sustainability topic covered by ESRS S4 that has been assessed to be material as a result of the undertaking’s materiality assessment.'})
     if not indicator.attribute_defined('ESRS_S4_General_1_6'):
       indicator.ESRS_S4_General_1_6 = '_n/a_'
-    survey_data.append({'name': 'Please briefly describe any time-bound targets it has set related to the matters in question, the progress it has made towards achieving those targets, and whether its targets related to biodiversity and ecosystems are based on conclusive scientific evidence.', 'value': indicator.ESRS_S4_General_1_6, 'id': f'ESRS_S4_General_1_6__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'ESRS_S4_General_1_3'})
+    survey_data.append({'name': 'Please briefly describe any time-bound targets it has set related to the matters in question, the progress it has made towards achieving those targets, and whether its targets related to biodiversity and ecosystems are based on conclusive scientific evidence.', 'value': indicator.ESRS_S4_General_1_6, 'id': f'ESRS_S4_General_1_6__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'included': 'ESRS_S4_General_1_6' in include_question_ids, 'dynamic_group_id': 'ESRS_S4_General_1_4', 'dynamic_condition': 'ESRS_S4_General_1_3', 'dynamic_condition_criteria': 'No', 'dynamic_header': 'Please elaborate on the questions below for each material sustainability topic covered by ESRS S4 that has been assessed to be material as a result of the undertaking’s materiality assessment.'})
     if not indicator.attribute_defined('ESRS_S4_General_1_7'):
       indicator.ESRS_S4_General_1_7 = '_n/a_'
-    survey_data.append({'name': 'Please briefly describe its policies in relation to the matters in question.', 'value': indicator.ESRS_S4_General_1_7, 'id': f'ESRS_S4_General_1_7__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'ESRS_S4_General_1_3'})
+    survey_data.append({'name': 'Please briefly describe its policies in relation to the matters in question.', 'value': indicator.ESRS_S4_General_1_7, 'id': f'ESRS_S4_General_1_7__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'included': 'ESRS_S4_General_1_7' in include_question_ids, 'dynamic_group_id': 'ESRS_S4_General_1_4', 'dynamic_condition': 'ESRS_S4_General_1_3', 'dynamic_condition_criteria': 'No', 'dynamic_header': 'Please elaborate on the questions below for each material sustainability topic covered by ESRS S4 that has been assessed to be material as a result of the undertaking’s materiality assessment.'})
     if not indicator.attribute_defined('ESRS_S4_General_1_8'):
       indicator.ESRS_S4_General_1_8 = '_n/a_'
-    survey_data.append({'name': 'Please briefly describe actions it has taken to identify, monitor, prevent, mitigate, remediate or bring an end to actual or potential adverse impacts related to the matters in question, and the result of such action.', 'value': indicator.ESRS_S4_General_1_8, 'id': f'ESRS_S4_General_1_8__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'ESRS_S4_General_1_3'})
+    survey_data.append({'name': 'Please briefly describe actions it has taken to identify, monitor, prevent, mitigate, remediate or bring an end to actual or potential adverse impacts related to the matters in question, and the result of such action.', 'value': indicator.ESRS_S4_General_1_8, 'id': f'ESRS_S4_General_1_8__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'included': 'ESRS_S4_General_1_8' in include_question_ids, 'dynamic_group_id': 'ESRS_S4_General_1_4', 'dynamic_condition': 'ESRS_S4_General_1_3', 'dynamic_condition_criteria': 'No', 'dynamic_header': 'Please elaborate on the questions below for each material sustainability topic covered by ESRS S4 that has been assessed to be material as a result of the undertaking’s materiality assessment.'})
     if not indicator.attribute_defined('ESRS_S4_General_1_9'):
       indicator.ESRS_S4_General_1_9 = '_n/a_'
-    survey_data.append({'name': 'Please briefly disclose metrics relevant to the matters in question.', 'value': indicator.ESRS_S4_General_1_9, 'id': f'ESRS_S4_General_1_9__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'condition': 'ESRS_S4_General_1_3'})
+    survey_data.append({'name': 'Please briefly disclose metrics relevant to the matters in question.', 'value': indicator.ESRS_S4_General_1_9, 'id': f'ESRS_S4_General_1_9__DQ{index}', 'tag': indicator.name.text, 'answer_type': 'OPEN', 'included': 'ESRS_S4_General_1_9' in include_question_ids, 'dynamic_group_id': 'ESRS_S4_General_1_4', 'dynamic_condition': 'ESRS_S4_General_1_3', 'dynamic_condition_criteria': 'No', 'dynamic_header': 'Please elaborate on the questions below for each material sustainability topic covered by ESRS S4 that has been assessed to be material as a result of the undertaking’s materiality assessment.'})
   if ESRS_S4_General_1_3 not in ['No']:
     ESRS_S4_General_1_4.clear()
 
@@ -289,7 +312,5 @@ subquestion: |
 event: invalid_token_screen
 question: |
   Your survey token is invalid. Please contact the administrator to request a new url. 
-subquestion: |
-  ${ action_button_html(login_url, size='md', color='primary', label='Login', new_window=False) }
 
 ---
